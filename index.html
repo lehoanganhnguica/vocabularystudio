@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vocab Studio — Classroom Vocabulary Teaching Tool</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#f1f5f9;color:#1e293b;min-height:100vh;line-height:1.5}
+  header{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);color:white;padding:.85rem 1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+  .header-inner{max-width:96rem;margin:0 auto;display:flex;flex-wrap:wrap;gap:1rem;align-items:center;justify-content:space-between}
+  h1{font-size:1.4rem;font-weight:700;display:flex;align-items:center;gap:.5rem}
+  .header-right{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  nav{display:flex;flex-wrap:wrap;gap:.25rem;background:rgba(255,255,255,.15);padding:.25rem;border-radius:.5rem}
+  nav button{background:transparent;border:none;color:white;padding:.4rem .75rem;border-radius:.4rem;cursor:pointer;font-size:.9rem;font-weight:500;transition:background .15s}
+  nav button:hover{background:rgba(255,255,255,.2)}
+  nav button.active{background:white;color:#4f46e5}
+  .sound-toggle{background:rgba(255,255,255,.15);border:none;color:white;padding:.5rem .7rem;border-radius:.4rem;cursor:pointer;font-size:1rem;transition:background .15s}
+  .sound-toggle:hover{background:rgba(255,255,255,.25)}
+  main{max-width:96rem;margin:0 auto;padding:1rem 1.25rem}
+  .card{background:white;border-radius:.75rem;padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05);border:1px solid #e2e8f0}
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1rem;border-radius:.5rem;font-size:.95rem;font-weight:500;border:none;cursor:pointer;transition:all .15s}
+  .btn-primary{background:#4f46e5;color:white}
+  .btn-primary:hover{background:#4338ca}
+  .btn-primary:disabled{background:#cbd5e1;cursor:not-allowed}
+  .btn-secondary{background:#e2e8f0;color:#334155}
+  .btn-secondary:hover{background:#cbd5e1}
+  .btn-success{background:#10b981;color:white}
+  .btn-success:hover{background:#059669}
+  .btn-danger{background:#ef4444;color:white}
+  .btn-danger:hover{background:#dc2626}
+  .btn-ghost{background:transparent;color:#64748b}
+  .btn-ghost:hover{background:#f1f5f9}
+  .btn-lg{padding:.8rem 1.6rem;font-size:1.1rem}
+  .row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .row-between{display:flex;gap:.5rem;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  textarea,input[type=text]{width:100%;border:1px solid #cbd5e1;border-radius:.5rem;padding:.6rem .8rem;font-size:.9rem;font-family:inherit}
+  textarea:focus,input:focus{outline:2px solid #4f46e5;outline-offset:-1px;border-color:transparent}
+  textarea{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem}
+  .empty{text-align:center;padding:3rem 1rem;color:#64748b;border:2px dashed #cbd5e1;border-radius:.75rem;background:white}
+  .grid{display:grid;gap:.75rem;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
+  .word-card{background:white;border:1px solid #e2e8f0;border-radius:.75rem;padding:1rem;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+  .word-card h3{color:#4f46e5;font-size:1.15rem;margin-bottom:.1rem}
+  .word-card .ipa{color:#0891b2;font-family:ui-monospace,monospace;font-size:.9rem;margin-bottom:.25rem}
+  .word-card .vn{color:#64748b;font-style:italic;font-size:.85rem}
+  .word-card .meaning{font-size:.9rem;color:#475569;margin:.4rem 0}
+  .word-card .ex{font-size:.9rem;color:#64748b;border-left:3px solid #c7d2fe;padding-left:.6rem;margin-top:.4rem}
+  .hl{background:#fde68a;color:#92400e;padding:0 3px;border-radius:3px;font-weight:600}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:50}
+  .modal{background:white;border-radius:.75rem;padding:1.5rem;max-width:52rem;width:100%;max-height:92vh;overflow:auto}
+  .hidden{display:none!important}
+  .toast{position:fixed;top:1rem;left:50%;transform:translateX(-50%);padding:.6rem 1.2rem;border-radius:.5rem;color:white;z-index:60;font-size:.95rem;font-weight:500;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+  .toast.success{background:#10b981}
+  .toast.error{background:#ef4444}
+  .toast.info{background:#3b82f6}
+
+  .tabs{display:flex;gap:.25rem;border-bottom:2px solid #e2e8f0;margin-bottom:1.25rem}
+  .tab{background:transparent;border:none;padding:.6rem 1rem;cursor:pointer;font-size:.9rem;font-weight:600;color:#64748b;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;font-family:inherit}
+  .tab:hover{color:#4f46e5}
+  .tab.active{color:#4f46e5;border-bottom-color:#4f46e5}
+  .step{background:#eef2ff;border-left:4px solid #4f46e5;padding:.85rem 1rem;border-radius:.4rem;margin-bottom:.75rem;font-size:.9rem;line-height:1.6}
+  .step b{color:#4f46e5}
+  .step-num{display:inline-flex;align-items:center;justify-content:center;width:1.5rem;height:1.5rem;background:#4f46e5;color:white;border-radius:50%;font-size:.8rem;font-weight:700;margin-right:.4rem}
+  .prompt-box{background:#0f172a;color:#e2e8f0;border-radius:.5rem;padding:1rem 1.1rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.82rem;line-height:1.65;white-space:pre-wrap;word-break:break-word;max-height:24rem;overflow-y:auto;border:1px solid #334155}
+  .prompt-box .ph{color:#fbbf24;font-weight:700;background:rgba(251,191,36,.15);padding:1px 4px;border-radius:3px}
+  .prompt-box .cmt{color:#94a3b8;font-style:italic}
+  .info-banner{background:#fef3c7;border:1px solid #f59e0b;color:#92400e;padding:.7rem .9rem;border-radius:.5rem;font-size:.9rem;margin-bottom:1rem;line-height:1.5}
+
+  /* =================== FLASHCARDS =================== */
+  .teach-stage{background:white;border-radius:1rem;padding:1.5rem 2rem;text-align:center;min-height:55vh;display:flex;flex-direction:column;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.05);position:relative;overflow:hidden}
+  .teach-word{font-size:clamp(3.5rem,11vw,8rem);font-weight:800;color:#4f46e5;margin-bottom:.3rem;letter-spacing:-.02em;line-height:1}
+  .teach-ipa{font-family:ui-monospace,Menlo,monospace;font-size:clamp(1.4rem,3.5vw,2.2rem);color:#0891b2;margin-bottom:1rem}
+  .teach-example{font-size:clamp(1.4rem,3.2vw,2rem);color:#475569;font-style:italic;max-width:62rem;margin:0 auto 1rem;line-height:1.5}
+  .teach-meaning{font-size:clamp(1.4rem,3vw,1.9rem);color:#0f172a;font-weight:500;margin-bottom:.4rem;padding-top:.8rem;border-top:1px dashed #cbd5e1;animation:fadeIn .5s}
+  .teach-vn{font-size:clamp(1.2rem,2.4vw,1.6rem);color:#7c3aed;font-style:italic;animation:fadeIn .8s}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .progress{background:#e2e8f0;border-radius:99px;height:6px;overflow:hidden;margin-bottom:.75rem}
+  .progress-bar{background:linear-gradient(90deg,#4f46e5,#7c3aed);height:100%;transition:width .3s}
+  .sparkle{position:absolute;pointer-events:none;font-size:1.8rem;animation:sparkleAnim 1s ease-out forwards}
+  @keyframes sparkleAnim{0%{opacity:0;transform:scale(0)}30%{opacity:1;transform:scale(1.2)}100%{opacity:0;transform:scale(.5) translateY(-30px)}}
+
+  /* =================== QUIZ =================== */
+  .quiz-q{font-size:clamp(1.6rem,3.5vw,2.4rem);margin-bottom:1.5rem;text-align:center;color:#0f172a;font-weight:500;line-height:1.4;padding:0 .5rem}
+  .quiz-options{display:grid;gap:.85rem;grid-template-columns:repeat(2,minmax(0,1fr));max-width:64rem;margin:0 auto}
+  .quiz-opt{padding:1.3rem 1.4rem;border:2px solid #e2e8f0;border-radius:.7rem;background:white;cursor:pointer;text-align:center;font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:600;transition:all .15s;font-family:inherit;line-height:1.4}
+  .quiz-opt:hover:not(:disabled){border-color:#a5b4fc;background:#eef2ff;transform:translateY(-1px)}
+  .quiz-opt.correct{border-color:#10b981;background:#d1fae5;color:#065f46}
+  .quiz-opt.wrong{border-color:#ef4444;background:#fee2e2;color:#991b1b}
+  .quiz-opt:disabled{cursor:default}
+  .quiz-ipa-mode{font-family:ui-monospace,monospace}
+  @media (max-width:640px){.quiz-options{grid-template-columns:1fr}}
+
+  /* =================== MATCH =================== */
+  .match-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.7rem;max-width:80rem;margin:0 auto}
+  .match-tile{padding:1.1rem .8rem;border:2px solid #e2e8f0;border-radius:.7rem;background:white;cursor:pointer;font-size:clamp(1.1rem,2vw,1.4rem);font-weight:600;text-align:center;transition:all .15s;min-height:5rem;display:flex;align-items:center;justify-content:center;font-family:inherit;line-height:1.3}
+  .match-tile:hover:not(:disabled){border-color:#a5b4fc;background:#fafbff;transform:translateY(-1px)}
+  .match-tile.selected{border-color:#4f46e5;background:#eef2ff;transform:scale(1.02)}
+  .match-tile.matched{border-color:#10b981;background:#d1fae5;color:#065f46;cursor:default;opacity:.75}
+  .match-tile.flash-wrong{border-color:#ef4444;background:#fee2e2}
+  @media (max-width:900px){.match-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+  /* =================== SCRAMBLE =================== */
+  .scramble-slots{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin:1.25rem 0;min-height:5rem}
+  .scramble-slot{width:4.5rem;height:5rem;border:2px dashed #cbd5e1;border-radius:.5rem;display:flex;align-items:center;justify-content:center;font-size:2.4rem;font-weight:700;color:#4f46e5;background:#f8fafc;text-transform:lowercase}
+  .scramble-slot.filled{border-style:solid;border-color:#4f46e5;background:#eef2ff;cursor:pointer}
+  .scramble-slot.correct{border-color:#10b981;background:#d1fae5;color:#065f46}
+  .scramble-slot.wrong{border-color:#ef4444;background:#fee2e2;color:#991b1b}
+  .scramble-tiles{display:flex;justify-content:center;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .scramble-tile{width:4.5rem;height:5rem;border:2px solid #4f46e5;background:white;border-radius:.5rem;font-size:2.4rem;font-weight:700;color:#4f46e5;cursor:pointer;transition:all .15s;font-family:inherit}
+  .scramble-tile:hover{background:#eef2ff;transform:translateY(-2px)}
+  .scramble-tile:disabled{opacity:.3;cursor:default;transform:none}
+  .ipa-hint{font-family:ui-monospace,monospace;color:#0891b2;font-size:1.5rem;margin-bottom:.5rem}
+
+  /* =================== SAVE THE DAY — HORIZONTAL DYNAMIC SCENE =================== */
+  .lotus-stage{
+    display:flex;flex-direction:row;align-items:center;gap:1.5rem;
+    padding:1.25rem;border-radius:1rem;
+    background:linear-gradient(135deg,#fef3c7 0%,#fce7f3 45%,#ede9fe 100%);
+    position:relative;overflow:hidden;border:1px solid #e9d5ff;
+    box-shadow:0 1px 3px rgba(0,0,0,.05);
+    min-height:60vh;
+  }
+  .lotus-stage::before{content:'';position:absolute;inset:0;background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.7), transparent 35%),
+    radial-gradient(circle at 85% 80%, rgba(196,181,253,.4), transparent 40%);
+    pointer-events:none;z-index:0}
+  .lotus-stage > *{position:relative;z-index:1}
+  .lotus-left{flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+  .lotus-right{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:.9rem}
+  .scene-wrap{display:flex;justify-content:center;align-items:center;width:100%;max-width:30rem;perspective:600px;position:relative}
+  .scene-svg{width:100%;display:block;filter:drop-shadow(0 12px 22px rgba(79,70,229,.22));transition:filter .3s}
+  .scene-svg.shake{animation:sceneShake .55s cubic-bezier(.36,.07,.19,.97) both}
+  .scene-svg.pulse{animation:scenePulse .6s ease both}
+  .scene-svg.win{animation:sceneWin 1s ease both}
+  .scene-svg.lose{animation:sceneLose .8s ease both;filter:drop-shadow(0 10px 18px rgba(0,0,0,.2)) grayscale(.4) brightness(.85)}
+
+  @keyframes sceneShake{
+    0%,100%{transform:translateX(0) rotate(0)}
+    15%{transform:translateX(-10px) rotate(-1.5deg)}
+    30%{transform:translateX(10px) rotate(1.5deg)}
+    45%{transform:translateX(-8px) rotate(-1deg)}
+    60%{transform:translateX(8px) rotate(1deg)}
+    75%{transform:translateX(-4px) rotate(-.5deg)}
+    90%{transform:translateX(4px) rotate(.5deg)}
+  }
+  @keyframes scenePulse{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 12px 22px rgba(79,70,229,.22))}
+    50%{transform:scale(1.06);filter:drop-shadow(0 0 30px rgba(16,185,129,.7)) brightness(1.08)}
+  }
+  @keyframes sceneWin{
+    0%{transform:scale(1)}
+    25%{transform:scale(1.12) rotate(-3deg)}
+    50%{transform:scale(1.08) rotate(3deg)}
+    75%{transform:scale(1.1) rotate(-2deg)}
+    100%{transform:scale(1) rotate(0)}
+  }
+  @keyframes sceneLose{
+    0%{transform:scale(1)}
+    50%{transform:scale(.96) translateY(4px)}
+    100%{transform:scale(1) translateY(0)}
+  }
+  @keyframes svgSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+  @keyframes svgPetalBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+  @keyframes svgGlow{0%,100%{opacity:.85;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+  @keyframes svgBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2.5px)}}
+  @keyframes svgSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @keyframes svgFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-3px) rotate(3deg)}}
+  @keyframes svgWobble{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
+  @keyframes svgWheel{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  @keyframes svgBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-1.5px)}}
+  @keyframes svgFlicker{0%,100%{opacity:.9}50%{opacity:.6}}
+  @keyframes svgShimmer{0%,100%{opacity:.5;transform:translateX(0)}50%{opacity:1;transform:translateX(2px)}}
+
+  .lotus-header{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .lotus-scene-title{font-size:clamp(1.3rem,2.4vw,1.7rem);font-weight:700;color:#7c3aed}
+  .lotus-lives{background:rgba(255,255,255,.85);backdrop-filter:blur(4px);padding:.5rem 1rem;border-radius:99px;font-size:1rem;font-weight:600;color:#475569;display:inline-flex;align-items:center;gap:.4rem;border:1px solid rgba(255,255,255,.8)}
+
+  .lotus-word{
+    display:flex;gap:.4rem;justify-content:center;flex-wrap:wrap;
+    font-family:ui-monospace,monospace;
+    font-size:clamp(2.6rem,6vw,4.2rem);
+    font-weight:800;color:#4f46e5;letter-spacing:.05em;
+    margin:.25rem 0
+  }
+  .lotus-letter{
+    min-width:1.5em;border-bottom:4px solid #4f46e5;
+    text-align:center;background:rgba(255,255,255,.6);
+    border-radius:.4rem .4rem 0 0;
+    padding:.1rem .25rem .05rem;transition:all .3s;line-height:1.05
+  }
+  .lotus-letter.revealed{animation:letterReveal .5s ease}
+  @keyframes letterReveal{0%{transform:scale(1.4) rotate(-10deg);color:#10b981}100%{transform:scale(1) rotate(0);color:#4f46e5}}
+
+  .lotus-meaning{
+    font-size:clamp(1.4rem,2.6vw,2rem);font-weight:600;color:#0f172a;
+    text-align:center;line-height:1.35;
+    background:rgba(255,255,255,.9);backdrop-filter:blur(6px);
+    padding:.85rem 1rem;border-radius:.7rem;border:1px solid #e9d5ff;
+    box-shadow:0 2px 8px rgba(124,58,237,.08)
+  }
+  .lotus-meta{
+    display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;
+    font-size:clamp(1rem,1.8vw,1.2rem);color:#64748b;
+    margin-top:.1rem
+  }
+  .lotus-meta .vn{color:#7c3aed;font-style:italic;font-weight:500}
+  .lotus-meta .ipa{font-family:ui-monospace,monospace;color:#0891b2}
+  .lotus-meta .len{color:#94a3b8}
+
+  .lotus-keys{
+    display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:.35rem;width:100%;
+    margin:.3rem auto 0
+  }
+  .lotus-key{
+    padding:.85rem 0;border:2px solid #cbd5e1;border-radius:.5rem;background:white;
+    cursor:pointer;font-weight:700;
+    font-size:clamp(1rem,1.6vw,1.3rem);
+    transition:all .15s;font-family:inherit
+  }
+  .lotus-key:hover:not(:disabled){background:#eef2ff;border-color:#4f46e5;transform:translateY(-2px);box-shadow:0 4px 8px rgba(79,70,229,.15)}
+  .lotus-key.hit{background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-color:#10b981;color:#065f46;animation:keyHit .4s ease}
+  .lotus-key.miss{background:linear-gradient(135deg,#fee2e2,#fecaca);border-color:#ef4444;color:#991b1b;animation:keyMiss .4s ease}
+  @keyframes keyHit{0%{transform:scale(1.2);box-shadow:0 0 0 8px rgba(16,185,129,.3)}100%{transform:scale(1);box-shadow:none}}
+  @keyframes keyMiss{0%{transform:scale(1) translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}100%{transform:translateX(0)}}
+  .lotus-key:disabled{cursor:default}
+
+  .burst{position:absolute;pointer-events:none;font-size:1.6rem;z-index:5;animation:burstFly 1.1s ease-out forwards}
+  @keyframes burstFly{
+    0%{opacity:0;transform:translate(0,0) scale(.4)}
+    20%{opacity:1;transform:translate(var(--bx,0),var(--by,-10px)) scale(1.1)}
+    100%{opacity:0;transform:translate(calc(var(--bx,0) * 1.5),calc(var(--by,-60px) * 1.8)) scale(.6) rotate(180deg)}
+  }
+  .lives-pip{display:inline-block;width:1.1rem;height:1.1rem;border-radius:50%;background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 1px 2px rgba(0,0,0,.1);transition:all .3s}
+  .lives-pip.lost{background:#e2e8f0;transform:scale(.65);opacity:.5}
+  .lives-pips{display:inline-flex;gap:3px;align-items:center}
+
+  .lotus-end{
+    text-align:center;padding:.75rem;border-radius:.7rem;
+    background:rgba(255,255,255,.92);backdrop-filter:blur(6px);
+    border:1px solid #e9d5ff
+  }
+  .lotus-end.win{border-color:#10b981;background:#d1fae5cc}
+  .lotus-end.lose{border-color:#ef4444;background:#fee2e2cc}
+
+  .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.4rem .8rem;border-radius:99px;background:#eef2ff;color:#4f46e5;font-size:.95rem;font-weight:600}
+
+  .footer{text-align:center;color:#94a3b8;font-size:.8rem;padding:1.5rem 1rem 2rem;line-height:1.7}
+  .footer .contact{margin-top:.5rem;color:#64748b}
+  .footer a{color:#4f46e5;text-decoration:none;font-weight:500}
+  .footer a:hover{text-decoration:underline}
+
+  @media (max-width:1024px){
+    .lotus-keys{grid-template-columns:repeat(9,minmax(0,1fr))}
+  }
+  @media (max-width:900px){
+    .lotus-stage{flex-direction:column;min-height:auto}
+    .scene-wrap{max-width:22rem}
+    .lotus-right{width:100%}
+  }
+  @media (max-width:640px){
+    .lotus-keys{grid-template-columns:repeat(7,minmax(0,1fr))}
+    .teach-stage{padding:1rem;min-height:45vh}
+    .scramble-slot,.scramble-tile{width:3rem;height:3.5rem;font-size:1.6rem}
+    .modal{padding:1rem}
+    .tab{padding:.5rem .6rem;font-size:.8rem}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <h1>📚 Vocab Studio</h1>
+    <div class="header-right">
+      <nav id="nav">
+        <button data-view="library" class="active">📖 Library</button>
+        <button data-view="flashcards">🃏 Flashcards</button>
+        <button data-view="quiz">❓ Quiz</button>
+        <button data-view="match">🔗 Match</button>
+        <button data-view="scramble">🔤 Scramble</button>
+        <button data-view="lotus">🛟 Save the Day</button>
+      </nav>
+      <button id="sound-toggle" class="sound-toggle" title="Toggle sound">🔊</button>
+    </div>
+  </div>
+</header>
+
+<main id="app"></main>
+
+<div class="footer">
+  Works fully offline · Save this file to your computer to use without internet
+  <div class="contact">
+    Contact: <a href="https://www.facebook.com/lkhoang.gnaohkl/" target="_blank" rel="noopener">Hoàng Lê (Facebook)</a>
+    · <a href="mailto:hoanglk@uef.edu.vn">hoanglk@uef.edu.vn</a>
+    · <a href="mailto:lehoang.anhnguica@gmail.com">lehoang.anhnguica@gmail.com</a>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<div id="modal-root"></div>
+
+<script>
+const sound = {
+  enabled: true, ctx: null, master: null,
+  init(){
+    if(!this.ctx){
+      try{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if(!AC) return;
+        this.ctx = new AC();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.7;
+        this.master.connect(this.ctx.destination);
+      }catch(e){ this.enabled = false; }
+    }
+    if(this.ctx && this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  tone(freq, dur, opts={}){
+    if(!this.enabled || !this.ctx) return;
+    const { type='sine', vol=0.15, when=0, attack=0.005 } = opts;
+    const t0 = this.ctx.currentTime + when;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + attack);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain).connect(this.master);
+    osc.start(t0); osc.stop(t0 + dur + 0.05);
+  },
+  sweep(f1, f2, dur, opts={}){
+    if(!this.enabled || !this.ctx) return;
+    const { type='sine', vol=0.15, when=0 } = opts;
+    const t0 = this.ctx.currentTime + when;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(f1, t0);
+    osc.frequency.exponentialRampToValueAtTime(Math.max(f2,1), t0 + dur);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(gain).connect(this.master);
+    osc.start(t0); osc.stop(t0 + dur + 0.05);
+  },
+  noise(dur, opts={}){
+    if(!this.enabled || !this.ctx) return;
+    const { vol=0.08, when=0, freq=2000, q=5 } = opts;
+    const t0 = this.ctx.currentTime + when;
+    const buffer = this.ctx.createBuffer(1, this.ctx.sampleRate * dur, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i] = Math.random()*2-1;
+    const src = this.ctx.createBufferSource(); src.buffer = buffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass'; filter.frequency.value = freq; filter.Q.value = q;
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.linearRampToValueAtTime(vol, t0 + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(filter).connect(gain).connect(this.master);
+    src.start(t0); src.stop(t0 + dur);
+  },
+  click(){ this.tone(900, 0.04, {type:'square', vol:0.06}); },
+  softClick(){ this.tone(600, 0.03, {type:'triangle', vol:0.05}); },
+  pop(){ this.sweep(700, 250, 0.08, {type:'sine', vol:0.1}); },
+  tap(){ this.tone(750, 0.05, {type:'triangle', vol:0.08}); this.tone(1500, 0.03, {type:'sine', vol:0.04, when:0.005}); },
+  select(){ this.tone(523, 0.06, {type:'triangle', vol:0.08}); this.tone(784, 0.06, {type:'sine', vol:0.05, when:0.03}); },
+  magic(){
+    const notes = [523.25, 659.25, 783.99, 1046.5, 1318.5];
+    notes.forEach((f,i)=>this.tone(f, 0.5, {type:'sine', vol:0.1, when:i*0.07}));
+    [2093, 2637, 3136].forEach((f,i)=>this.tone(f, 0.3, {type:'sine', vol:0.04, when:0.35+i*0.05}));
+    this.noise(0.4, {vol:0.03, when:0.3, freq:6000, q:8});
+  },
+  shuffle(){ for(let i=0;i<8;i++) this.tone(200 + Math.random()*600, 0.03, {type:'square', vol:0.05, when:i*0.04}); },
+  correct(){
+    this.tone(523.25, 0.12, {type:'sine', vol:0.13});
+    this.tone(659.25, 0.12, {type:'sine', vol:0.13, when:0.1});
+    this.tone(783.99, 0.3, {type:'sine', vol:0.13, when:0.2});
+    this.tone(1046.5, 0.3, {type:'sine', vol:0.08, when:0.2});
+  },
+  wrong(){
+    this.tone(220, 0.15, {type:'sawtooth', vol:0.08});
+    this.tone(180, 0.2, {type:'sawtooth', vol:0.08, when:0.12});
+  },
+  ding(){
+    this.tone(880, 0.4, {type:'sine', vol:0.12});
+    this.tone(1318, 0.4, {type:'sine', vol:0.07, when:0.01});
+    this.tone(1760, 0.3, {type:'sine', vol:0.04, when:0.02});
+  },
+  fanfare(){
+    const notes = [523.25, 659.25, 783.99, 1046.5];
+    notes.forEach((f,i)=>this.tone(f, 0.2, {type:'triangle', vol:0.13, when:i*0.1}));
+    this.tone(1046.5, 0.7, {type:'sine', vol:0.12, when:0.45});
+    this.tone(1318.5, 0.7, {type:'sine', vol:0.1, when:0.45});
+    this.tone(1568, 0.7, {type:'sine', vol:0.08, when:0.45});
+  },
+  petalFall(){
+    this.sweep(600, 150, 0.4, {type:'sine', vol:0.1});
+    this.tone(200, 0.15, {type:'triangle', vol:0.06, when:0.35});
+  },
+  sad(){
+    const notes = [392, 349.23, 311.13, 261.63];
+    notes.forEach((f,i)=>this.tone(f, 0.35, {type:'triangle', vol:0.11, when:i*0.18}));
+  },
+  place(){
+    this.tone(440, 0.05, {type:'triangle', vol:0.08});
+    this.tone(880, 0.03, {type:'sine', vol:0.05, when:0.02});
+  },
+  petalSave(){
+    this.tone(659.25, 0.15, {type:'sine', vol:0.12});
+    this.tone(987.77, 0.25, {type:'sine', vol:0.08, when:0.08});
+  },
+};
+function unlockAudio(){
+  sound.init();
+  document.removeEventListener('click', unlockAudio);
+  document.removeEventListener('keydown', unlockAudio);
+  document.removeEventListener('touchstart', unlockAudio);
+}
+document.addEventListener('click', unlockAudio);
+document.addEventListener('keydown', unlockAudio);
+document.addEventListener('touchstart', unlockAudio);
+
+try{ const saved = localStorage.getItem('vocab-studio-sound'); if(saved==='off') sound.enabled=false; }catch(e){}
+const soundBtn = document.getElementById('sound-toggle');
+function updateSoundBtn(){ soundBtn.textContent = sound.enabled ? '🔊' : '🔇'; }
+updateSoundBtn();
+soundBtn.addEventListener('click', ()=>{
+  sound.enabled = !sound.enabled;
+  try{ localStorage.setItem('vocab-studio-sound', sound.enabled?'on':'off'); }catch(e){}
+  updateSoundBtn();
+  if(sound.enabled){ sound.init(); sound.ding(); }
+});
+
+const state = {
+  words: [],
+  view: 'library',
+  fcIdx: 0, fcRevealed: false,
+  quizQ: null, quizScore: 0, quizTotal: 0,
+  matchPairs: [], matchSelected: null, matchMatched: new Set(), matchMoves: 0,
+  scIdx: 0, scTiles: [], scAnswer: [], scResult: null,
+  lotusWord: null, lotusScene: null, lotusGuessed: new Set(), lotusWrong: 0, lotusMax: 6, lotusEnded: false,
+  lotusUsedWords: new Set(), lotusLastSceneId: null,
+  importTab: 'guide',
+};
+
+const SAMPLE = [
+  {word:'academic',ipa:'/ˌækəˈdemɪk/',meaning:'good at or interested in studying',translation:'thích học / học thuật',example:'She enjoys reading and studying, so she is very academic.'},
+  {word:'ambitious',ipa:'/æmˈbɪʃəs/',meaning:'wanting to be successful',translation:'có tham vọng',example:'He wants to become a doctor, so he is very ambitious.'},
+  {word:'independent',ipa:'/ˌɪndɪˈpendənt/',meaning:'able to do things by yourself',translation:'độc lập',example:'I like solving problems by myself. I am independent.'},
+  {word:'organized',ipa:'/ˈɔːɡənaɪzd/',meaning:'neat and good at planning',translation:'ngăn nắp / có tổ chức',example:'She always makes a study plan. She is organized.'},
+  {word:'shy',ipa:'/ʃaɪ/',meaning:'nervous around other people',translation:'nhút nhát',example:'He doesn\u2019t talk much to new people because he is shy.'},
+  {word:'adventurous',ipa:'/ədˈventʃərəs/',meaning:'liking new or exciting experiences',translation:'thích phiêu lưu',example:'She likes travelling alone. She is adventurous.'},
+  {word:'competitive',ipa:'/kəmˈpetətɪv/',meaning:'wanting to win or be better',translation:'thích cạnh tranh',example:'He always wants to win. He is competitive.'},
+  {word:'messy',ipa:'/ˈmesi/',meaning:'not neat or tidy',translation:'bừa bộn',example:'My desk is always untidy. I am messy.'},
+  {word:'sensible',ipa:'/ˈsensəbl/',meaning:'careful and practical',translation:'biết suy nghĩ',example:'She thinks carefully. She is sensible.'},
+  {word:'sociable',ipa:'/ˈsəʊʃəbl/',meaning:'enjoying talking to people',translation:'hòa đồng',example:'He enjoys meeting new people. He is sociable.'},
+];
+
+const STORAGE_KEY = 'vocab-studio-words-v2';
+function loadWords(){ try{ const raw = localStorage.getItem(STORAGE_KEY); if(raw) state.words = JSON.parse(raw); }catch(e){} }
+function save(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state.words)); }catch(e){} }
+loadWords();
+
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const escapeHtml = s => (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const shuffle = arr => { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const sample = (arr,n) => shuffle(arr).slice(0,n);
+
+function highlight(sentence, word){
+  if(!sentence||!word) return escapeHtml(sentence);
+  const safe = escapeHtml(sentence);
+  const re = new RegExp('\\b('+word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\w*)\\b','gi');
+  return safe.replace(re,'<span class="hl">$1</span>');
+}
+
+function toast(msg, type='info'){
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast '+type;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.add('hidden'), 3000);
+}
+
+function spawnSparkles(container){
+  const emojis = ['✨','⭐','💫','🌟'];
+  for(let i=0;i<10;i++){
+    const s = document.createElement('div');
+    s.className = 'sparkle';
+    s.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    s.style.left = (10 + Math.random()*80) + '%';
+    s.style.top = (20 + Math.random()*60) + '%';
+    s.style.animationDelay = (Math.random()*0.3)+'s';
+    container.appendChild(s);
+    setTimeout(()=>s.remove(), 1500);
+  }
+}
+
+function stripMd(s){
+  return (s||'')
+    .replace(/\*\*(.+?)\*\*/g,'$1').replace(/__(.+?)__/g,'$1')
+    .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g,'$1')
+    .replace(/`(.+?)`/g,'$1').trim();
+}
+function looksLikeIPA(s){
+  if(!s) return false;
+  if(/^[\/\[].*[\/\]]$/.test(s.trim())) return true;
+  return /[ˈˌəɪʊɔɛæʃʒθðŋːɑɒɜɝɚʌɐ]/.test(s);
+}
+function parseTable(text){
+  let lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(!lines.length) return [];
+  lines = lines.filter(l => !/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(l));
+  if(!lines.length) return [];
+  const pipeLines = lines.filter(l=>l.includes('|')).length;
+  const tabLines = lines.filter(l=>l.includes('\t')).length;
+  let rows;
+  if(pipeLines >= Math.max(2, Math.floor(lines.length*0.6))){
+    rows = lines.map(l => l.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>c.trim()));
+  } else if(tabLines >= 1){
+    rows = lines.map(l => l.split('\t').map(c=>c.trim()));
+  } else {
+    rows = lines.map(l => l.split(/\s{2,}/).map(c=>c.trim()));
+  }
+  rows = rows.map(r => r.map(stripMd)).filter(r => r.some(c => c.length));
+  if(!rows.length) return [];
+  const hints = ['word','ipa','pronunciation','phonetic','meaning','definition','vietnamese','translation','vn','cue','example','sentence','simple'];
+  const first = rows[0].map(c=>c.toLowerCase());
+  const hasHeader = first.some(c => hints.some(h => c.includes(h)));
+  const headers = hasHeader ? first : null;
+  const data = hasHeader ? rows.slice(1) : rows;
+  const idx = { word:0, ipa:-1, meaning:-1, translation:-1, example:-1 };
+  if(headers){
+    headers.forEach((h,i)=>{
+      if(/ipa|pronunc|phonetic/.test(h)) idx.ipa = i;
+      else if(/word|term|vocab/.test(h) && !/sentence/.test(h)) idx.word = i;
+      else if(/meaning|definition|simple/.test(h)) idx.meaning = i;
+      else if(/vietnamese|translation|cue|tiếng|^vn$/i.test(h)) idx.translation = i;
+      else if(/example|sentence|context/.test(h)) idx.example = i;
+    });
+  } else {
+    const sampleRow = data[0] || [];
+    let ipaCol = -1;
+    sampleRow.forEach((c,i)=>{ if(i!==0 && ipaCol===-1 && looksLikeIPA(c)) ipaCol = i; });
+    if(ipaCol !== -1){
+      idx.ipa = ipaCol;
+      const rest = sampleRow.map((_,i)=>i).filter(i=>i!==0 && i!==ipaCol);
+      idx.meaning = rest[0] ?? -1;
+      idx.translation = rest[1] ?? -1;
+      idx.example = rest[2] ?? -1;
+    } else {
+      idx.meaning = 1; idx.translation = 2;
+      idx.example = sampleRow.length >= 4 ? 3 : -1;
+    }
+  }
+  return data.map(r => ({
+    id: uid(),
+    word: (r[idx.word]||'').trim(),
+    ipa: idx.ipa>=0 ? (r[idx.ipa]||'').trim() : '',
+    meaning: idx.meaning>=0 ? (r[idx.meaning]||'').trim() : '',
+    translation: idx.translation>=0 ? (r[idx.translation]||'').trim() : '',
+    example: idx.example>=0 ? (r[idx.example]||'').trim() : ''
+  })).filter(w => w.word);
+}
+
+function setView(v){
+  sound.softClick();
+  state.view = v;
+  document.querySelectorAll('#nav button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.view===v);
+  });
+  if(v==='flashcards'){ state.fcIdx=0; state.fcRevealed=false; }
+  if(v==='quiz'){ state.quizScore=0; state.quizTotal=0; nextQuizQuestion(); }
+  if(v==='match'){ initMatch(); }
+  if(v==='scramble'){ state.scIdx=0; initScramble(); }
+  if(v==='lotus'){ state.lotusUsedWords = new Set(); state.lotusLastSceneId = null; initLotus(); }
+  render();
+}
+document.querySelectorAll('#nav button').forEach(b=>{
+  b.addEventListener('click', ()=>setView(b.dataset.view));
+});
+
+function render(){
+  const app = $('app');
+  if(state.view==='library') return renderLibrary(app);
+  if(!state.words.length){
+    app.innerHTML = `<div class="empty">
+      <h2 style="font-size:1.3rem;margin-bottom:.5rem">No words yet</h2>
+      <p style="margin-bottom:1rem">Go to <b>Library</b> and import a vocabulary table first.</p>
+      <button class="btn btn-primary" onclick="setView('library')">Go to Library</button>
+    </div>`;
+    return;
+  }
+  if(state.view==='flashcards') renderFlashcards(app);
+  else if(state.view==='quiz') renderQuiz(app);
+  else if(state.view==='match') renderMatch(app);
+  else if(state.view==='scramble') renderScramble(app);
+  else if(state.view==='lotus') renderLotus(app);
+}
+
+function renderLibrary(app){
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:1rem">
+      <div>
+        <h2 style="font-size:1.4rem;margin-bottom:.2rem">Library</h2>
+        <p style="color:#64748b;font-size:.9rem">${state.words.length} word${state.words.length===1?'':'s'} loaded</p>
+      </div>
+      <div class="row">
+        <button class="btn btn-secondary" onclick="loadSample()">📋 Load sample</button>
+        <button class="btn btn-secondary" onclick="exportJSON()">💾 Export</button>
+        <button class="btn btn-danger" onclick="clearAll()">🗑️ Clear</button>
+        <button class="btn btn-primary" onclick="openImport()">➕ Import / Paste</button>
+      </div>
+    </div>
+    ${state.words.length === 0
+      ? `<div class="empty">
+          <h2 style="font-size:1.2rem;margin-bottom:.5rem">No words yet</h2>
+          <p style="margin-bottom:1rem">Click <b>Import / Paste</b> to add a Markdown table from ChatGPT,<br>or click <b>Load sample</b> to try the demo set.</p>
+        </div>`
+      : `<div class="grid">${state.words.map(w=>`
+          <div class="word-card">
+            <div class="row-between" style="align-items:flex-start">
+              <h3>${escapeHtml(w.word)}</h3>
+              <button class="btn btn-ghost" style="padding:.2rem .4rem;font-size:.8rem" onclick="deleteWord('${w.id}')">✕</button>
+            </div>
+            ${w.ipa?`<div class="ipa">${escapeHtml(w.ipa)}</div>`:''}
+            ${w.translation?`<div class="vn">${escapeHtml(w.translation)}</div>`:''}
+            ${w.meaning?`<div class="meaning">${escapeHtml(w.meaning)}</div>`:''}
+            ${w.example?`<div class="ex">${highlight(w.example,w.word)}</div>`:''}
+          </div>
+        `).join('')}</div>`
+    }
+  `;
+}
+function loadSample(){
+  state.words = SAMPLE.map(w => ({...w, id: uid()}));
+  save(); render(); sound.ding(); toast(`Loaded ${state.words.length} sample words.`,'success');
+}
+function clearAll(){
+  if(!state.words.length) return;
+  if(!confirm('Delete all words?')) return;
+  state.words = []; save(); render(); sound.pop(); toast('Cleared all.','info');
+}
+function deleteWord(id){
+  sound.pop();
+  state.words = state.words.filter(w=>w.id!==id); save(); render();
+}
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(state.words,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'vocab-library.json'; a.click();
+  URL.revokeObjectURL(url);
+  sound.ding(); toast('Exported library.','success');
+}
+
+const CHATGPT_PROMPT = `WORDS: [TYPE YOUR WORDS HERE, separated by commas — e.g. academic, ambitious, shy, sociable]
+LEVEL: [CHANGE THIS — e.g. A2 / B1 / B2 / IELTS 5.5]
+TOPIC (optional): [CHANGE THIS — e.g. "personality adjectives", or leave blank]
+
+---
+
+Using the WORDS, LEVEL, and TOPIC above, please create a vocabulary table.
+
+For each word, give me a row with EXACTLY these 5 columns, in this order:
+
+| Word | IPA | Simple meaning | Vietnamese cue | Example sentence |
+
+Rules:
+1. Word — the target word in lowercase. Wrap it in **double asterisks** for bold.
+2. IPA — British English IPA, including the slashes, e.g. /ˌækəˈdemɪk/
+3. Simple meaning — a short definition in EASY English (use words a CEFR A2–B1 learner already knows). Maximum 8 words. No idioms.
+4. Vietnamese cue — the natural Vietnamese translation. Keep it short (1–4 words).
+5. Example sentence — a clear, natural sentence (8–14 words) that gives strong context. Bold the target word inside the sentence using **double asterisks**.
+
+Important formatting rules:
+- Output ONLY the markdown table — no introduction, no explanation, no notes after.
+- Include the header row and the separator row (| --- | --- | --- | --- | --- |).
+- Use a single | (pipe) between every column.
+- Keep one word per row.
+- Do NOT add extra columns.`;
+
+function openImport(){
+  state.importTab = 'guide';
+  renderImportModal();
+}
+function renderImportModal(){
+  const tab = state.importTab;
+  $('modal-root').innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="row-between" style="margin-bottom:1rem">
+          <h2 style="font-size:1.25rem">Import vocabulary</h2>
+          <button class="btn btn-ghost" onclick="closeModal()" style="padding:.3rem .6rem;font-size:1.1rem">✕</button>
+        </div>
+
+        <div class="tabs">
+          <button class="tab ${tab==='guide'?'active':''}" onclick="switchImportTab('guide')">📘 How to use</button>
+          <button class="tab ${tab==='paste'?'active':''}" onclick="switchImportTab('paste')">📥 Paste table</button>
+        </div>
+
+        ${tab==='guide' ? `
+          <div class="info-banner">
+            💡 <b>Don't have a vocabulary table yet?</b> Use the prompt below to ask ChatGPT (or any AI assistant) to make one for you in seconds. Works for teachers <b>and</b> students.
+          </div>
+
+          <div class="step"><span class="step-num">1</span><b>Click "Copy prompt"</b> below, then open ChatGPT (or Claude, Gemini, Copilot — any AI chatbot will work) and paste it into the chat box.</div>
+          <div class="step"><span class="step-num">2</span>Edit the <b>top three lines</b> of the prompt: type your <span class="ph" style="background:rgba(251,191,36,.3);color:#92400e">WORDS</span> separated by commas, choose the <span class="ph" style="background:rgba(251,191,36,.3);color:#92400e">LEVEL</span>, and (optionally) add a <span class="ph" style="background:rgba(251,191,36,.3);color:#92400e">TOPIC</span>. <i>Tip: use commas — don't press Enter, or you might send the message too early!</i></div>
+          <div class="step"><span class="step-num">3</span>Send the prompt. The AI will return a clean markdown table.</div>
+          <div class="step"><span class="step-num">4</span>Copy the table, switch to the <b>📥 Paste table</b> tab here, paste it in, and click <b>Import</b>.</div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;margin:1.25rem 0 .5rem">
+            <h3 style="font-size:1rem;font-weight:600;color:#0f172a">📋 Ready-to-use prompt</h3>
+            <button class="btn btn-primary" onclick="copyPrompt()" id="copy-btn">📎 Copy prompt</button>
+          </div>
+          <div class="prompt-box" id="prompt-text">${formatPrompt()}</div>
+
+          <div class="row-between" style="margin-top:1.25rem">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="switchImportTab('paste')">I have my table → Paste it ➜</button>
+          </div>
+        ` : `
+          <p style="font-size:.9rem;color:#64748b;margin-bottom:.8rem">
+            Paste your markdown table below. Supports <code>| col | col |</code>, tab-separated, or 2+ spaces.<br>
+            Recognized columns: <b>Word</b>, <b>IPA</b>, <b>Meaning</b>, <b>Vietnamese</b>, <b>Example</b>.
+          </p>
+          <textarea id="paste" rows="12" placeholder="| Word | IPA | Simple meaning | Vietnamese cue | Example sentence |&#10;| --- | --- | --- | --- | --- |&#10;| **academic** | /ˌækəˈdemɪk/ | good at studying | thích học | She is **academic**. |"></textarea>
+          <div class="row-between" style="margin-top:1rem">
+            <div class="row">
+              <button class="btn btn-ghost" onclick="document.getElementById('paste').value=getSampleMd()">Insert sample</button>
+              <button class="btn btn-ghost" onclick="switchImportTab('guide')">← Need the prompt?</button>
+            </div>
+            <div class="row">
+              <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+              <button class="btn btn-primary" onclick="doImport()">Import</button>
+            </div>
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+  if(tab==='paste') setTimeout(()=>$('paste')?.focus(),50);
+}
+function formatPrompt(){
+  return escapeHtml(CHATGPT_PROMPT)
+    .replace(/\[TYPE YOUR WORDS HERE.*?\]/g, m=>`<span class="ph">${m}</span>`)
+    .replace(/\[CHANGE THIS.*?\]/g, m=>`<span class="ph">${m}</span>`)
+    .replace(/^(Rules:|Important formatting rules:|---)$/gm, m=>`<span class="cmt">${m}</span>`);
+}
+function switchImportTab(t){
+  sound.softClick();
+  state.importTab = t;
+  renderImportModal();
+}
+function copyPrompt(){
+  const btn = $('copy-btn');
+  const done = ()=>{
+    sound.ding();
+    btn.textContent = '✅ Copied!';
+    btn.classList.remove('btn-primary');
+    btn.classList.add('btn-success');
+    setTimeout(()=>{
+      btn.textContent = '📎 Copy prompt';
+      btn.classList.add('btn-primary');
+      btn.classList.remove('btn-success');
+    }, 2000);
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(CHATGPT_PROMPT).then(done).catch(fallbackCopy);
+  } else fallbackCopy();
+  function fallbackCopy(){
+    const ta = document.createElement('textarea');
+    ta.value = CHATGPT_PROMPT;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); done(); }
+    catch(e){ toast('Could not copy. Please select the text manually.','error'); }
+    document.body.removeChild(ta);
+  }
+}
+function closeModal(){ $('modal-root').innerHTML=''; }
+function getSampleMd(){
+  return `| Word | IPA | Simple meaning | Vietnamese cue | Example sentence |
+| --- | --- | --- | --- | --- |
+| **academic** | /ˌækəˈdemɪk/ | good at studying | thích học | She is **academic**. |
+| **shy** | /ʃaɪ/ | nervous around people | nhút nhát | He is **shy**. |
+| **ambitious** | /æmˈbɪʃəs/ | wanting success | có tham vọng | He is **ambitious**. |`;
+}
+function doImport(){
+  const text = $('paste').value;
+  if(!text.trim()){ sound.wrong(); toast('Paste a table first.','error'); return; }
+  try{
+    const parsed = parseTable(text);
+    if(!parsed.length){ sound.wrong(); toast('Could not parse any rows.','error'); return; }
+    state.words = state.words.concat(parsed);
+    save(); closeModal(); render();
+    sound.fanfare();
+    toast(`Imported ${parsed.length} word${parsed.length===1?'':'s'}.`,'success');
+  }catch(e){ console.error(e); sound.wrong(); toast('Error: '+e.message,'error'); }
+}
+
+function renderFlashcards(app){
+  const w = state.words[state.fcIdx];
+  const total = state.words.length;
+  const pct = ((state.fcIdx+1)/total)*100;
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:.75rem">
+      <div class="row">
+        <button class="btn btn-secondary" onclick="fcPrev()" ${state.fcIdx===0?'disabled':''}>← Previous</button>
+        <span class="badge">Card ${state.fcIdx+1} / ${total}</span>
+        <button class="btn btn-secondary" onclick="fcNext()" ${state.fcIdx===total-1?'disabled':''}>Next →</button>
+      </div>
+      <span style="font-size:.85rem;color:#64748b">Press <b>Space</b> to reveal · <b>←/→</b> to navigate</span>
+    </div>
+    <div class="progress"><div class="progress-bar" style="width:${pct}%"></div></div>
+    <div class="teach-stage" id="teach-stage">
+      <div class="teach-word">${escapeHtml(w.word)}</div>
+      ${w.ipa?`<div class="teach-ipa">${escapeHtml(w.ipa)}</div>`:''}
+      ${w.example ? `<div class="teach-example">"${highlight(w.example,w.word)}"</div>` : ''}
+      ${state.fcRevealed
+        ? `${w.meaning?`<div class="teach-meaning">${escapeHtml(w.meaning)}</div>`:''}
+           ${w.translation?`<div class="teach-vn">🇻🇳 ${escapeHtml(w.translation)}</div>`:''}`
+        : `<div style="margin-top:1rem;color:#94a3b8;font-size:1.1rem">
+             👀 Pronounce (using IPA) and guess the meaning from context, then click reveal.
+           </div>`
+      }
+    </div>
+    <div class="row" style="justify-content:center;margin-top:1rem;gap:1rem">
+      ${!state.fcRevealed
+        ? `<button class="btn btn-primary btn-lg" onclick="fcReveal()">✨ Reveal meaning</button>`
+        : `<button class="btn btn-success btn-lg" onclick="fcNext()" ${state.fcIdx===total-1?'disabled':''}>
+             ${state.fcIdx===total-1 ? '✅ Finished!' : 'Next card →'}
+           </button>`
+      }
+    </div>
+  `;
+}
+function fcPrev(){ if(state.fcIdx>0){ sound.softClick(); state.fcIdx--; state.fcRevealed=false; render(); } }
+function fcNext(){ if(state.fcIdx<state.words.length-1){ sound.softClick(); state.fcIdx++; state.fcRevealed=false; render(); } else { sound.fanfare(); } }
+function fcReveal(){
+  state.fcRevealed=true; sound.magic(); render();
+  requestAnimationFrame(()=>{
+    const stage = document.getElementById('teach-stage');
+    if(stage) spawnSparkles(stage);
+  });
+}
+document.addEventListener('keydown', e=>{
+  if(state.view!=='flashcards') return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  if(e.key===' '||e.key==='Enter'){ e.preventDefault(); state.fcRevealed?fcNext():fcReveal(); }
+  else if(e.key==='ArrowRight') fcNext();
+  else if(e.key==='ArrowLeft') fcPrev();
+});
+
+function nextQuizQuestion(){
+  if(state.words.length<2){ state.quizQ=null; return; }
+  const correctIdx = Math.floor(Math.random()*state.words.length);
+  const correct = state.words[correctIdx];
+  const distractors = sample(state.words.filter((_,i)=>i!==correctIdx), Math.min(3, state.words.length-1));
+  const opts = shuffle([correct, ...distractors]);
+  const modes = ['meaning'];
+  if(correct.example) modes.push('sentence');
+  if(correct.ipa && state.words.filter(w=>w.ipa).length>=2) modes.push('ipa');
+  const mode = modes[Math.floor(Math.random()*modes.length)];
+  state.quizQ = { correct, opts, mode, answered:false, picked:null };
+}
+function renderQuiz(app){
+  if(!state.quizQ){ app.innerHTML = `<div class="empty"><p>Need at least 2 words for the quiz.</p></div>`; return; }
+  const q = state.quizQ;
+  let prompt;
+  if(q.mode==='sentence' && q.correct.example){
+    const blanked = q.correct.example.replace(new RegExp('\\b'+q.correct.word.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\w*\\b','gi'),'_____');
+    prompt = `Fill in the blank:<br><span style="font-style:italic;color:#475569;display:inline-block;margin-top:.5rem">"${escapeHtml(blanked)}"</span>`;
+  } else if(q.mode==='ipa' && q.correct.ipa){
+    prompt = `Which word is pronounced:<br><span class="quiz-ipa-mode" style="color:#0891b2;font-size:1.4em;display:inline-block;margin-top:.5rem">${escapeHtml(q.correct.ipa)}</span>`;
+  } else {
+    prompt = `Which word means:<br><b style="display:inline-block;margin-top:.5rem">${escapeHtml(q.correct.meaning||'(no meaning)')}</b>${q.correct.translation?`<br><span style="font-size:.75em;color:#7c3aed;font-style:italic">(${escapeHtml(q.correct.translation)})</span>`:''}`;
+  }
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:1rem">
+      <span class="badge" style="font-size:1.05rem;padding:.5rem 1rem">Score: ${state.quizScore} / ${state.quizTotal}</span>
+      <button class="btn btn-secondary" onclick="quizReset()">🔄 Reset score</button>
+    </div>
+    <div class="card" style="padding:1.5rem 1.25rem">
+      <div class="quiz-q">${prompt}</div>
+      <div class="quiz-options">
+        ${q.opts.map(o=>`
+          <button class="quiz-opt ${q.answered?(o.id===q.correct.id?'correct':(o.id===q.picked?'wrong':'')):''}"
+            ${q.answered?'disabled':''} onclick="quizPick('${o.id}')">
+            ${escapeHtml(o.word)}
+          </button>
+        `).join('')}
+      </div>
+      ${q.answered?`
+        <div style="text-align:center;margin-top:1.5rem">
+          ${q.picked===q.correct.id
+            ? `<div style="color:#10b981;font-weight:700;font-size:1.5rem">✅ Correct! <b>${escapeHtml(q.correct.word)}</b>${q.correct.ipa?` <span style="font-family:ui-monospace,monospace;color:#0891b2;font-size:1rem">${escapeHtml(q.correct.ipa)}</span>`:''}</div>`
+            : `<div style="color:#ef4444;font-weight:700;font-size:1.4rem">❌ The answer was <b>${escapeHtml(q.correct.word)}</b>${q.correct.ipa?` <span style="font-family:ui-monospace,monospace;color:#0891b2;font-size:1rem">${escapeHtml(q.correct.ipa)}</span>`:''}</div>`}
+          <button class="btn btn-primary btn-lg" style="margin-top:1rem" onclick="quizNext()">Next question →</button>
+        </div>
+      `:''}
+    </div>
+  `;
+}
+function quizPick(id){
+  const q = state.quizQ;
+  q.picked = id; q.answered = true;
+  state.quizTotal++;
+  if(id===q.correct.id){ state.quizScore++; sound.correct(); } else { sound.wrong(); }
+  render();
+}
+function quizNext(){ sound.softClick(); nextQuizQuestion(); render(); }
+function quizReset(){ sound.pop(); state.quizScore=0; state.quizTotal=0; nextQuizQuestion(); render(); }
+
+function initMatch(){
+  const pool = sample(state.words, Math.min(6, state.words.length));
+  const left = pool.map(w=>({key:w.id+'-w', text:w.word, pairId:w.id, side:'L'}));
+  const right = pool.map(w=>({key:w.id+'-m', text:w.meaning||w.translation||'(no meaning)', pairId:w.id, side:'R'}));
+  state.matchPairs = shuffle([...left, ...right]);
+  state.matchSelected = null; state.matchMatched = new Set(); state.matchMoves = 0;
+}
+function renderMatch(app){
+  const pairs = state.matchPairs;
+  const totalPairs = pairs.length/2;
+  const matchedCount = state.matchMatched.size/2;
+  const done = matchedCount===totalPairs;
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:.75rem">
+      <div class="row">
+        <span class="badge" style="font-size:1.05rem;padding:.5rem 1rem">Matched: ${matchedCount} / ${totalPairs}</span>
+        <span class="badge" style="font-size:1.05rem;padding:.5rem 1rem">Moves: ${state.matchMoves}</span>
+      </div>
+      <button class="btn btn-secondary" onclick="matchNew()">🔄 New round</button>
+    </div>
+    ${done?`<div class="card" style="text-align:center;background:#d1fae5;border-color:#10b981;margin-bottom:1rem;padding:1rem">
+      <div style="font-size:2rem">🎉</div>
+      <div style="font-weight:700;color:#065f46;font-size:1.2rem">Great work! All matched in ${state.matchMoves} moves.</div>
+    </div>`:''}
+    <p style="text-align:center;color:#475569;font-size:1.1rem;margin-bottom:1rem;font-weight:500">Click a word, then click its meaning (or vice versa).</p>
+    <div class="match-grid">
+      ${pairs.map(p=>{
+        const matched = state.matchMatched.has(p.key);
+        const selected = state.matchSelected===p.key;
+        return `<button class="match-tile ${matched?'matched':''} ${selected?'selected':''}" onclick="matchClick('${p.key}')" ${matched?'disabled':''}>
+          ${escapeHtml(p.text)}
+        </button>`;
+      }).join('')}
+    </div>
+  `;
+}
+function matchNew(){ sound.shuffle(); initMatch(); render(); }
+function matchClick(key){
+  if(state.matchMatched.has(key)) return;
+  if(state.matchSelected===key){ sound.softClick(); state.matchSelected=null; render(); return; }
+  if(!state.matchSelected){ sound.select(); state.matchSelected = key; render(); return; }
+  state.matchMoves++;
+  const a = state.matchPairs.find(p=>p.key===state.matchSelected);
+  const b = state.matchPairs.find(p=>p.key===key);
+  if(a.pairId===b.pairId && a.side!==b.side){
+    state.matchMatched.add(a.key); state.matchMatched.add(b.key);
+    state.matchSelected = null; sound.ding(); render();
+    if(state.matchMatched.size===state.matchPairs.length){ setTimeout(()=>sound.fanfare(), 350); toast('All matched! 🎉','success'); }
+  } else {
+    sound.wrong();
+    const prev = state.matchSelected;
+    state.matchSelected = null; render();
+    const elA = document.querySelector(`[onclick="matchClick('${prev}')"]`);
+    const elB = document.querySelector(`[onclick="matchClick('${key}')"]`);
+    elA?.classList.add('flash-wrong'); elB?.classList.add('flash-wrong');
+    setTimeout(()=>{ elA?.classList.remove('flash-wrong'); elB?.classList.remove('flash-wrong'); }, 500);
+  }
+}
+
+function initScramble(){
+  const w = state.words[state.scIdx];
+  state.scTiles = shuffle(w.word.split('').map((ch,i)=>({ch,id:i,used:false})));
+  state.scAnswer = []; state.scResult = null;
+}
+function renderScramble(app){
+  const w = state.words[state.scIdx];
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:.75rem">
+      <div class="row">
+        <button class="btn btn-secondary" onclick="scPrev()">← Prev</button>
+        <span class="badge" style="font-size:1.05rem;padding:.5rem 1rem">Word ${state.scIdx+1} / ${state.words.length}</span>
+        <button class="btn btn-secondary" onclick="scNext()">Next →</button>
+      </div>
+      <button class="btn btn-secondary" onclick="scReshuffle()">🔄 Reshuffle</button>
+    </div>
+    <div class="card" style="text-align:center;padding:1.5rem 1rem">
+      <div style="color:#64748b;margin-bottom:.4rem;font-size:.9rem;text-transform:uppercase;letter-spacing:.05em;font-weight:600">Hint</div>
+      ${w.ipa?`<div class="ipa-hint">${escapeHtml(w.ipa)}</div>`:''}
+      <div style="font-size:clamp(1.4rem,2.6vw,1.8rem);font-weight:500;margin-bottom:.4rem;color:#0f172a">${escapeHtml(w.meaning||'(no meaning)')}</div>
+      ${w.translation?`<div style="color:#7c3aed;font-style:italic;font-size:1.2rem;margin-bottom:.5rem">🇻🇳 ${escapeHtml(w.translation)}</div>`:''}
+      <div class="scramble-slots">
+        ${w.word.split('').map((_,i)=>{
+          const filled = state.scAnswer[i];
+          let cls = 'scramble-slot';
+          if(filled) cls += ' filled';
+          if(state.scResult==='correct') cls += ' correct';
+          else if(state.scResult==='wrong' && filled) cls += ' wrong';
+          return `<div class="${cls}" onclick="scRemove(${i})">${filled?escapeHtml(filled.ch):''}</div>`;
+        }).join('')}
+      </div>
+      <div class="scramble-tiles">
+        ${state.scTiles.map(t=>`
+          <button class="scramble-tile" onclick="scPlace(${t.id})" ${t.used?'disabled':''}>${escapeHtml(t.ch)}</button>
+        `).join('')}
+      </div>
+      <div class="row" style="justify-content:center;margin-top:1.25rem;gap:.6rem">
+        <button class="btn btn-secondary" onclick="scClear()">Clear</button>
+        <button class="btn btn-primary btn-lg" onclick="scCheck()">Check</button>
+      </div>
+      ${state.scResult==='correct'?`<div style="color:#10b981;font-weight:700;font-size:1.5rem;margin-top:.85rem">✅ Correct! It's "${escapeHtml(w.word)}"</div>`:''}
+      ${state.scResult==='wrong'?`<div style="color:#ef4444;font-weight:700;font-size:1.3rem;margin-top:.85rem">❌ Not quite — try again!</div>`:''}
+    </div>
+  `;
+}
+function scPlace(id){
+  const tile = state.scTiles.find(t=>t.id===id);
+  if(!tile||tile.used) return;
+  tile.used = true;
+  state.scAnswer.push({...tile});
+  state.scResult = null; sound.place(); render();
+}
+function scRemove(i){
+  const filled = state.scAnswer[i];
+  if(!filled) return;
+  state.scAnswer.splice(i,1);
+  const t = state.scTiles.find(t=>t.id===filled.id);
+  if(t) t.used = false;
+  state.scResult = null; sound.pop(); render();
+}
+function scClear(){
+  sound.softClick();
+  state.scTiles.forEach(t=>t.used=false);
+  state.scAnswer = []; state.scResult = null; render();
+}
+function scCheck(){
+  const w = state.words[state.scIdx];
+  const guess = state.scAnswer.map(a=>a.ch).join('');
+  if(guess.toLowerCase()===w.word.toLowerCase()){ state.scResult='correct'; sound.correct(); }
+  else { state.scResult='wrong'; sound.wrong(); }
+  render();
+}
+function scNext(){ sound.softClick(); state.scIdx=(state.scIdx+1)%state.words.length; initScramble(); render(); }
+function scPrev(){ sound.softClick(); state.scIdx=(state.scIdx-1+state.words.length)%state.words.length; initScramble(); render(); }
+function scReshuffle(){ sound.shuffle(); initScramble(); render(); }
+
+/* ===== DYNAMIC SCENE GRAPHICS ===== */
+
+function svgLotus(wrong){
+  const left = 6 - wrong;
+  const petals = [
+    {cx:120,cy:55, fill:'#fbcfe8',stroke:'#ec4899',rot:0,    d:0},
+    {cx:170,cy:80, fill:'#f9a8d4',stroke:'#db2777',rot:45,   d:.3},
+    {cx:180,cy:130,fill:'#f472b6',stroke:'#be185d',rot:80,   d:.6},
+    {cx:150,cy:165,fill:'#f9a8d4',stroke:'#db2777',rot:120,  d:.9},
+    {cx:90, cy:165,fill:'#f472b6',stroke:'#be185d',rot:-120, d:1.2},
+    {cx:60, cy:130,fill:'#f9a8d4',stroke:'#db2777',rot:-80,  d:1.5},
+  ];
+  return `
+    <svg viewBox="0 0 240 230" class="scene-svg">
+      <defs>
+        <radialGradient id="lWater" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#bae6fd"/><stop offset="100%" stop-color="#0ea5e9" stop-opacity=".6"/></radialGradient>
+        <radialGradient id="lSun"><stop offset="0%" stop-color="#fef9c3"/><stop offset="60%" stop-color="#fde047"/><stop offset="100%" stop-color="#f59e0b"/></radialGradient>
+        <linearGradient id="lPad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#86efac"/><stop offset="100%" stop-color="#16a34a"/></linearGradient>
+      </defs>
+      <ellipse cx="120" cy="210" rx="115" ry="14" fill="url(#lWater)"/>
+      <ellipse cx="120" cy="210" rx="40" ry="5" fill="none" stroke="#0ea5e9" stroke-width="1.2" opacity=".55">
+        <animate attributeName="rx" values="20;95;20" dur="4s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".6;0;.6" dur="4s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="120" cy="210" rx="60" ry="6" fill="none" stroke="#0ea5e9" stroke-width="1" opacity=".4">
+        <animate attributeName="rx" values="20;105;20" dur="4s" begin="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".5;0;.5" dur="4s" begin="2s" repeatCount="indefinite"/>
+      </ellipse>
+      <ellipse cx="120" cy="200" rx="100" ry="11" fill="url(#lPad)" opacity=".95"/>
+      <path d="M 50 198 Q 120 186 190 198" stroke="#bbf7d0" stroke-width="2" fill="none" opacity=".7"/>
+      <g style="transform-origin:120px 200px;animation:svgSway 4s ease-in-out infinite">
+        <path d="M 120 200 Q 118 160 120 ${left>0?125:175}" stroke="${left>0?'#16a34a':'#92400e'}" stroke-width="4" stroke-linecap="round" fill="none"/>
+        ${petals.slice(0,left).map(p=>`
+          <g style="transform-origin:120px 105px;animation:svgPetalBreathe 3s ease-in-out infinite;animation-delay:${p.d}s">
+            <ellipse cx="${p.cx}" cy="${p.cy}" rx="22" ry="28" fill="${p.fill}" stroke="${p.stroke}" stroke-width="1.5" transform="rotate(${p.rot} ${p.cx} ${p.cy})" opacity=".95"/>
+            <ellipse cx="${p.cx}" cy="${p.cy-6}" rx="8" ry="14" fill="white" opacity=".3" transform="rotate(${p.rot} ${p.cx} ${p.cy})"/>
+          </g>
+        `).join('')}
+        ${left>0?`
+          <g style="transform-origin:120px 105px;animation:svgGlow 2.5s ease-in-out infinite">
+            <circle cx="120" cy="105" r="26" fill="url(#lSun)" opacity=".5"/>
+            <circle cx="120" cy="105" r="20" fill="url(#lSun)" stroke="#f59e0b" stroke-width="1.5"/>
+            <circle cx="113" cy="99" r="3.5" fill="#fff" opacity=".85"/>
+            <circle cx="126" cy="110" r="2" fill="#fff" opacity=".5"/>
+          </g>
+        `:`<text x="120" y="160" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">wilted...</text>`}
+      </g>
+      <circle cx="35" cy="80" r="2.5" fill="#fde047">
+        <animate attributeName="cy" values="80;55;80" dur="3.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".9;.2;.9" dur="3.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="205" cy="100" r="2" fill="#fbbf24">
+        <animate attributeName="cy" values="100;70;100" dur="4.5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".8;.2;.8" dur="4.5s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="215" cy="160" r="1.8" fill="#fde047">
+        <animate attributeName="cx" values="215;195;215" dur="5s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".7;.2;.7" dur="5s" repeatCount="indefinite"/>
+      </circle>
+    </svg>
+  `;
+}
+
+function svgPho(wrong){
+  const left = 6 - wrong;
+  const toppings = [
+    `<g style="transform-origin:80px 118px;animation:svgBob 2.5s ease-in-out infinite"><ellipse cx="80" cy="118" rx="9" ry="3.5" fill="#16a34a"/><ellipse cx="83" cy="115" rx="3" ry="6" fill="#22c55e"/><ellipse cx="76" cy="116" rx="2.5" ry="5" fill="#4ade80"/></g>`,
+    `<g style="transform-origin:105px 120px;animation:svgBob 2.8s ease-in-out infinite;animation-delay:.3s"><ellipse cx="105" cy="120" rx="14" ry="4.5" fill="#92400e" stroke="#451a03" stroke-width=".8"/><ellipse cx="105" cy="119" rx="11" ry="2" fill="#b45309" opacity=".7"/></g>`,
+    `<g style="transform-origin:135px 118px;animation:svgBob 2.3s ease-in-out infinite;animation-delay:.6s"><ellipse cx="135" cy="118" rx="13" ry="4" fill="#dc2626" stroke="#7f1d1d" stroke-width=".6"/><ellipse cx="135" cy="117" rx="10" ry="1.8" fill="#ef4444" opacity=".7"/></g>`,
+    `<g style="transform-origin:158px 113px;animation:svgFloat 3s ease-in-out infinite;animation-delay:.9s"><path d="M 156 109 q 8 4 11 11 q -10 -2 -13 -7 z" fill="#dc2626" stroke="#991b1b" stroke-width=".6"/><line x1="156" y1="109" x2="153" y2="103" stroke="#16a34a" stroke-width="2"/></g>`,
+    `<g style="transform-origin:120px 110px;animation:svgBob 2.6s ease-in-out infinite;animation-delay:1.2s"><path d="M 90 110 q 10 -3 18 0" stroke="#fef3c7" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M 115 108 q 10 -3 18 0" stroke="#fef9c3" stroke-width="2.8" fill="none" stroke-linecap="round"/><path d="M 92 113 q 10 -2 16 1" stroke="#fef3c7" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/></g>`,
+    `<g><circle cx="100" cy="115" r="2.2" fill="#fbbf24"><animate attributeName="opacity" values="1;.4;1" dur="2s" repeatCount="indefinite"/></circle><circle cx="125" cy="113" r="2" fill="#fbbf24"><animate attributeName="opacity" values=".4;1;.4" dur="2s" repeatCount="indefinite"/></circle><circle cx="148" cy="120" r="1.6" fill="#fbbf24"><animate attributeName="opacity" values="1;.4;1" dur="2.5s" repeatCount="indefinite"/></circle></g>`,
+  ];
+  const steam = wrong < 4 ? `
+    <g opacity=".7">
+      <path d="M 90 95 Q 85 75 95 60 Q 105 45 95 30" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linecap="round" opacity=".6">
+        <animate attributeName="opacity" values=".2;.7;.2" dur="2s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 120 95 Q 115 70 125 50 Q 135 30 120 15" stroke="#cbd5e1" stroke-width="3.5" fill="none" stroke-linecap="round">
+        <animate attributeName="opacity" values=".7;.2;.7" dur="2.3s" repeatCount="indefinite"/>
+      </path>
+      <path d="M 150 95 Q 145 75 155 60 Q 165 45 155 30" stroke="#cbd5e1" stroke-width="3" fill="none" stroke-linecap="round">
+        <animate attributeName="opacity" values=".3;.7;.3" dur="1.9s" repeatCount="indefinite"/>
+      </path>
+    </g>
+  ` : '';
+  return `
+    <svg viewBox="0 0 240 220" class="scene-svg">
+      <defs>
+        <linearGradient id="phoBowl" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#f59e0b" stop-opacity=".4"/></linearGradient>
+        <radialGradient id="phoBroth" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#a16207"/><stop offset="100%" stop-color="#451a03"/></radialGradient>
+      </defs>
+      ${steam}
+      <ellipse cx="120" cy="195" rx="90" ry="10" fill="#000" opacity=".15"/>
+      <ellipse cx="120" cy="115" rx="80" ry="14" fill="#fff" stroke="#1e293b" stroke-width="2"/>
+      <path d="M 40 115 Q 55 195 120 200 Q 185 195 200 115" fill="url(#phoBowl)" stroke="#1e293b" stroke-width="2"/>
+      <ellipse cx="120" cy="115" rx="74" ry="10" fill="url(#phoBroth)"/>
+      <ellipse cx="120" cy="113" rx="68" ry="3" fill="#fbbf24" opacity=".4">
+        <animate attributeName="rx" values="60;72;60" dur="3s" repeatCount="indefinite"/>
+      </ellipse>
+      <path d="M 60 165 q 8 -8 16 0 q 8 8 16 0" stroke="#dc2626" stroke-width="2" fill="none"/>
+      <path d="M 145 165 q 8 -8 16 0 q 8 8 16 0" stroke="#dc2626" stroke-width="2" fill="none"/>
+      <text x="120" y="180" text-anchor="middle" font-size="9" fill="#dc2626" font-weight="bold" font-family="serif">PHỞ</text>
+      ${toppings.slice(0, left).join('')}
+      ${left===0?`<text x="120" y="195" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">cold &amp; empty...</text>`:''}
+      <g style="transform-origin:200px 70px;animation:svgWobble 3s ease-in-out infinite">
+        <line x1="195" y1="70" x2="215" y2="40" stroke="#7c2d12" stroke-width="2.5" stroke-linecap="round"/>
+        <line x1="200" y1="72" x2="220" y2="42" stroke="#92400e" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+    </svg>
+  `;
+}
+
+function svgBanhMi(wrong){
+  const left = 6 - wrong;
+  const ingredients = [
+    `<g style="transform-origin:65px 118px;animation:svgWobble 2.5s ease-in-out infinite"><ellipse cx="65" cy="118" rx="11" ry="4.5" fill="#16a34a"/><ellipse cx="68" cy="115" rx="3" ry="5.5" fill="#22c55e"/><ellipse cx="62" cy="116" rx="2.5" ry="4" fill="#4ade80"/></g>`,
+    `<g style="transform-origin:91px 118px;animation:svgWobble 2.7s ease-in-out infinite;animation-delay:.3s"><rect x="80" y="115" width="22" height="3" fill="#fb923c" rx="1.5"/><rect x="84" y="120" width="22" height="3" fill="#fdba74" rx="1.5"/><rect x="82" y="125" width="20" height="2.5" fill="#fb923c" rx="1.2"/></g>`,
+    `<g style="transform-origin:118px 118px;animation:svgWobble 2.4s ease-in-out infinite;animation-delay:.6s"><rect x="108" y="116" width="20" height="4" fill="#f8fafc" stroke="#94a3b8" stroke-width=".8" rx="1.5"/><rect x="110" y="121" width="18" height="3" fill="#fef3c7" stroke="#d4d4d8" stroke-width=".5" rx="1"/></g>`,
+    `<g style="transform-origin:135px 118px;animation:svgWobble 2.6s ease-in-out infinite;animation-delay:.9s"><ellipse cx="135" cy="118" rx="14" ry="4.5" fill="#fda4af" stroke="#be123c" stroke-width="1"/><ellipse cx="135" cy="118" rx="10" ry="2" fill="#fecdd3" opacity=".7"/></g>`,
+    `<g style="transform-origin:160px 120px;animation:svgWobble 2.8s ease-in-out infinite;animation-delay:1.2s"><ellipse cx="160" cy="120" rx="13" ry="4" fill="#a16207" stroke="#451a03" stroke-width=".8"/><ellipse cx="160" cy="119" rx="9" ry="1.5" fill="#b45309" opacity=".7"/></g>`,
+    `<g style="transform-origin:178px 113px;animation:svgFloat 3s ease-in-out infinite;animation-delay:1.5s"><path d="M 176 109 q 7 4 9 10 q -9 -2 -11 -6 z" fill="#dc2626" stroke="#7f1d1d" stroke-width=".6"/><line x1="176" y1="109" x2="173" y2="104" stroke="#16a34a" stroke-width="2"/></g>`,
+  ];
+  return `
+    <svg viewBox="0 0 240 200" class="scene-svg">
+      <defs>
+        <linearGradient id="bmTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></linearGradient>
+        <linearGradient id="bmBot" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fde68a"/><stop offset="100%" stop-color="#fbbf24"/></linearGradient>
+      </defs>
+      <ellipse cx="120" cy="190" rx="100" ry="6" fill="#000" opacity=".15"/>
+      <g style="transform-origin:120px 60px;animation:svgWobble 5s ease-in-out infinite">
+        <path d="M 25 75 Q 25 40 75 40 L 165 40 Q 215 40 215 75 Q 200 70 165 70 L 75 70 Q 40 70 25 75" fill="url(#bmTop)" stroke="#92400e" stroke-width="2"/>
+        <path d="M 55 55 q 4 -3 8 0" stroke="#92400e" stroke-width="1.5" fill="none"/>
+        <path d="M 95 55 q 4 -3 8 0" stroke="#92400e" stroke-width="1.5" fill="none"/>
+        <path d="M 135 55 q 4 -3 8 0" stroke="#92400e" stroke-width="1.5" fill="none"/>
+        <path d="M 175 55 q 4 -3 8 0" stroke="#92400e" stroke-width="1.5" fill="none"/>
+      </g>
+      <g style="transform-origin:120px 145px;animation:svgWobble 5s ease-in-out infinite;animation-delay:.5s">
+        <path d="M 25 130 Q 30 155 75 155 L 165 155 Q 210 155 215 130 Q 200 125 165 125 L 75 125 Q 40 125 25 130" fill="url(#bmBot)" stroke="#92400e" stroke-width="2"/>
+        <path d="M 50 145 q 5 -2 10 0" stroke="#a16207" stroke-width="1" fill="none" opacity=".5"/>
+        <path d="M 180 145 q 5 -2 10 0" stroke="#a16207" stroke-width="1" fill="none" opacity=".5"/>
+      </g>
+      ${ingredients.slice(0, left).join('')}
+      ${left===0?`<text x="120" y="180" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">empty bread...</text>`:''}
+      ${left>0?`
+        <circle cx="40" cy="180" r="1.5" fill="#a16207" opacity=".6"/>
+        <circle cx="60" cy="185" r="1" fill="#a16207" opacity=".5"/>
+        <circle cx="200" cy="183" r="1.5" fill="#a16207" opacity=".6"/>
+      `:''}
+    </svg>
+  `;
+}
+
+function svgCoffee(wrong){
+  const left = 6 - wrong;
+  const ice = [
+    {x:84,y:55,r:15,d:0},{x:104,y:50,r:-10,d:.4},{x:124,y:58,r:25,d:.8},
+    {x:80,y:75,r:0,d:1.2},{x:108,y:78,r:-20,d:1.6},{x:128,y:80,r:18,d:2.0},
+  ];
+  return `
+    <svg viewBox="0 0 220 230" class="scene-svg">
+      <defs>
+        <linearGradient id="cofGlass" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#dbeafe" stop-opacity=".3"/><stop offset="50%" stop-color="#fff" stop-opacity=".6"/><stop offset="100%" stop-color="#dbeafe" stop-opacity=".3"/></linearGradient>
+        <linearGradient id="cofBrown" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7c2d12"/><stop offset="100%" stop-color="#451a03"/></linearGradient>
+        <linearGradient id="cofMilk" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#fffbeb"/><stop offset="100%" stop-color="#fef3c7"/></linearGradient>
+      </defs>
+      <ellipse cx="110" cy="200" rx="55" ry="6" fill="#000" opacity=".15"/>
+      <path d="M 60 45 L 65 185 Q 65 195 80 195 L 140 195 Q 155 195 155 185 L 160 45 Z" fill="url(#cofGlass)" stroke="#1e40af" stroke-width="2.5"/>
+      <ellipse cx="110" cy="45" rx="50" ry="6" fill="#fff" opacity=".4" stroke="#1e40af" stroke-width="2.5"/>
+      <path d="M 68 130 L 72 178 Q 72 190 82 190 L 138 190 Q 148 190 148 178 L 152 130 Z" fill="url(#cofBrown)"/>
+      <path d="M 70 135 Q 110 145 150 135 L 152 130 L 68 130 Z" fill="url(#cofMilk)" opacity=".95"/>
+      <ellipse cx="110" cy="138" rx="38" ry="3" fill="#fef3c7">
+        <animate attributeName="rx" values="35;42;35" dur="3s" repeatCount="indefinite"/>
+      </ellipse>
+      <path d="M 80 142 Q 110 138 140 142" stroke="#fbbf24" stroke-width="1" fill="none" opacity=".5"/>
+      ${ice.slice(0, left).map((c,i) => `
+        <g style="transform-origin:${c.x+9}px ${c.y+9}px;animation:svgFloat 3s ease-in-out infinite;animation-delay:${c.d}s">
+          <g transform="rotate(${c.r} ${c.x+9} ${c.y+9})">
+            <rect x="${c.x}" y="${c.y}" width="20" height="20" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.5" rx="3" opacity=".88"/>
+            <path d="M ${c.x+3} ${c.y+3} L ${c.x+9} ${c.y+3} L ${c.x+3} ${c.y+9} Z" fill="#fff" opacity=".8"/>
+            <line x1="${c.x+15}" y1="${c.y+5}" x2="${c.x+17}" y2="${c.y+8}" stroke="#fff" stroke-width="1" opacity=".5"/>
+          </g>
+        </g>
+      `).join('')}
+      <rect x="103" y="20" width="6" height="170" fill="#dc2626" rx="2"/>
+      <rect x="103" y="20" width="6" height="35" fill="#fbbf24" rx="2"/>
+      <rect x="105" y="22" width="2" height="160" fill="#fef2f2" opacity=".5" rx="1"/>
+      ${wrong < 6 ? `
+        <ellipse cx="68" cy="100" rx="2.5" ry="3.5" fill="#bfdbfe" opacity=".7">
+          <animate attributeName="cy" values="100;180;100" dur="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".7;0;.7" dur="3s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="152" cy="80" rx="2" ry="3" fill="#bfdbfe" opacity=".6">
+          <animate attributeName="cy" values="80;180;80" dur="3.5s" begin="1.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".6;0;.6" dur="3.5s" begin="1.5s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="62" cy="150" rx="1.8" ry="2.5" fill="#bfdbfe" opacity=".7">
+          <animate attributeName="cy" values="150;185;150" dur="2.5s" begin=".8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".7;0;.7" dur="2.5s" begin=".8s" repeatCount="indefinite"/>
+        </ellipse>
+      `:''}
+      ${left===0?`<text x="110" y="35" text-anchor="middle" font-size="12" fill="#94a3b8" font-style="italic">all melted!</text>`:''}
+    </svg>
+  `;
+}
+
+function svgBanhChung(wrong){
+  const left = 6 - wrong;
+  const parts = [
+    `<line x1="90" y1="55" x2="90" y2="165" stroke="#dc2626" stroke-width="4" style="animation:svgShimmer 2s ease-in-out infinite"/>`,
+    `<line x1="150" y1="55" x2="150" y2="165" stroke="#dc2626" stroke-width="4" style="animation:svgShimmer 2.3s ease-in-out infinite;animation-delay:.3s"/>`,
+    `<line x1="55" y1="85" x2="185" y2="85" stroke="#dc2626" stroke-width="4" style="animation:svgShimmer 2.1s ease-in-out infinite;animation-delay:.6s"/>`,
+    `<line x1="55" y1="135" x2="185" y2="135" stroke="#dc2626" stroke-width="4" style="animation:svgShimmer 2.4s ease-in-out infinite;animation-delay:.9s"/>`,
+    `<g style="transform-origin:90px 50px;animation:svgFloat 3s ease-in-out infinite"><path d="M 80 50 Q 90 40 100 50 Q 90 58 80 50 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width=".8"/><circle cx="90" cy="50" r="3" fill="#7f1d1d"/></g>`,
+    `<g style="transform-origin:150px 170px;animation:svgFloat 3s ease-in-out infinite;animation-delay:.5s"><path d="M 140 170 Q 150 160 160 170 Q 150 178 140 170 Z" fill="#dc2626" stroke="#7f1d1d" stroke-width=".8"/><circle cx="150" cy="170" r="3" fill="#7f1d1d"/></g>`,
+  ];
+  return `
+    <svg viewBox="0 0 240 220" class="scene-svg">
+      <defs>
+        <linearGradient id="bcLeaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="50%" stop-color="#16a34a"/><stop offset="100%" stop-color="#14532d"/></linearGradient>
+        <radialGradient id="bcOpen"><stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/></radialGradient>
+      </defs>
+      <ellipse cx="120" cy="195" rx="100" ry="8" fill="#000" opacity=".15"/>
+      ${left>0?`
+        <g style="transform-origin:120px 112px;animation:svgBounce 4s ease-in-out infinite">
+          <rect x="55" y="55" width="130" height="115" fill="url(#bcLeaf)" stroke="#14532d" stroke-width="2.5" rx="6"/>
+          <path d="M 60 60 L 75 70 M 175 60 L 165 70 M 60 165 L 75 155 M 180 165 L 165 155" stroke="#14532d" stroke-width="1.5" opacity=".7" fill="none"/>
+          <path d="M 65 90 Q 120 75 175 90" stroke="#14532d" stroke-width="1.2" fill="none" opacity=".5"/>
+          <path d="M 65 130 Q 120 145 175 130" stroke="#14532d" stroke-width="1.2" fill="none" opacity=".5"/>
+          <path d="M 70 75 q 50 -10 100 0" stroke="#bbf7d0" stroke-width="1" fill="none" opacity=".4"/>
+          <path d="M 70 155 q 50 10 100 0" stroke="#bbf7d0" stroke-width="1" fill="none" opacity=".4"/>
+        </g>
+      `:`
+        <rect x="55" y="55" width="130" height="115" fill="url(#bcOpen)" stroke="#a16207" stroke-width="2" rx="4"/>
+        <ellipse cx="120" cy="115" rx="38" ry="14" fill="#92400e"/>
+        <circle cx="80" cy="80" r="2" fill="#fff"/>
+        <circle cx="160" cy="85" r="2" fill="#fff"/>
+        <circle cx="100" cy="150" r="2" fill="#fff"/>
+        <circle cx="155" cy="155" r="2" fill="#fff"/>
+        <path d="M 30 75 Q 50 60 55 55 L 55 80 Z" fill="#22c55e" opacity=".5"/>
+        <path d="M 210 75 Q 190 60 185 55 L 185 80 Z" fill="#22c55e" opacity=".5"/>
+        <text x="120" y="200" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">unwrapped...</text>
+      `}
+      ${parts.slice(0, left).join('')}
+      ${left>0?`
+        <circle cx="30" cy="40" r="3" fill="#fda4af" opacity=".7">
+          <animate attributeName="cy" values="40;200;40" dur="6s" repeatCount="indefinite"/>
+          <animate attributeName="cx" values="30;50;30" dur="6s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="210" cy="60" r="2.5" fill="#fbcfe8" opacity=".7">
+          <animate attributeName="cy" values="60;210;60" dur="7s" begin="2s" repeatCount="indefinite"/>
+        </circle>
+      `:''}
+    </svg>
+  `;
+}
+
+function svgMotorbike(wrong){
+  const left = 6 - wrong;
+  const boxes = [
+    {y:118, color:'#7c2d12', w:60},
+    {y:96,  color:'#dc2626', w:58},
+    {y:74,  color:'#f59e0b', w:55},
+    {y:52,  color:'#84cc16', w:52},
+    {y:30,  color:'#06b6d4', w:48},
+    {y:10,  color:'#a855f7', w:44},
+  ];
+  const visible = boxes.slice(0, left);
+  return `
+    <svg viewBox="0 0 280 230" class="scene-svg">
+      <defs>
+        <linearGradient id="mbBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#64748b"/><stop offset="100%" stop-color="#334155"/></linearGradient>
+        <radialGradient id="mbWheel"><stop offset="40%" stop-color="#1f2937"/><stop offset="100%" stop-color="#0f172a"/></radialGradient>
+      </defs>
+      <line x1="10" y1="200" x2="270" y2="200" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4">
+        <animate attributeName="stroke-dashoffset" values="0;-20" dur="1s" repeatCount="indefinite"/>
+      </line>
+      <ellipse cx="135" cy="205" rx="100" ry="5" fill="#000" opacity=".15"/>
+      <circle cx="40" cy="170" r="6" fill="#cbd5e1" opacity=".5">
+        <animate attributeName="cx" values="40;0;40" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="6;14;6" dur="2s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".5;0;.5" dur="2s" repeatCount="indefinite"/>
+      </circle>
+      <circle cx="40" cy="175" r="5" fill="#e2e8f0" opacity=".4">
+        <animate attributeName="cx" values="40;-10;40" dur="2.4s" begin=".7s" repeatCount="indefinite"/>
+        <animate attributeName="r" values="4;12;4" dur="2.4s" begin=".7s" repeatCount="indefinite"/>
+        <animate attributeName="opacity" values=".4;0;.4" dur="2.4s" begin=".7s" repeatCount="indefinite"/>
+      </circle>
+
+      <g style="transform-origin:135px 175px;animation:svgBounce 1.2s ease-in-out infinite">
+        <g style="transform-origin:170px 130px;animation:svgWobble 1s ease-in-out infinite">
+          ${visible.map((b,i) => `
+            <g style="animation:svgWobble ${1+i*0.1}s ease-in-out infinite;animation-delay:${i*.1}s;transform-origin:${165 - (b.w-50)/2 + b.w/2}px ${b.y+11}px">
+              <rect x="${165 - (b.w-50)/2}" y="${b.y}" width="${b.w}" height="22" fill="${b.color}" stroke="#1e293b" stroke-width="1.5" rx="2.5"/>
+              <line x1="${165 - (b.w-50)/2 + 5}" y1="${b.y+11}" x2="${165 - (b.w-50)/2 + b.w - 5}" y2="${b.y+11}" stroke="#000" stroke-width=".7" opacity=".4"/>
+              <line x1="${165 - (b.w-50)/2 + b.w/2}" y1="${b.y}" x2="${165 - (b.w-50)/2 + b.w/2}" y2="${b.y+11}" stroke="#000" stroke-width=".7" opacity=".4"/>
+              <rect x="${165 - (b.w-50)/2 + 3}" y="${b.y+3}" width="${b.w - 6}" height="3" fill="#fff" opacity=".25" rx="1"/>
+            </g>
+          `).join('')}
+        </g>
+        <path d="M 65 175 L 100 150 L 175 150 L 200 175" stroke="url(#mbBody)" stroke-width="6" fill="none" stroke-linejoin="round"/>
+        <rect x="148" y="143" width="48" height="10" fill="#1e293b" rx="3"/>
+        <rect x="100" y="140" width="20" height="14" fill="#dc2626" rx="2"/>
+        <rect x="103" y="142" width="14" height="3" fill="#fff" opacity=".4" rx="1"/>
+        <line x1="100" y1="150" x2="85" y2="120" stroke="url(#mbBody)" stroke-width="5"/>
+        <line x1="75" y1="118" x2="98" y2="118" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="92" cy="130" r="6" fill="#fde047" stroke="#92400e" stroke-width="1">
+          <animate attributeName="opacity" values="1;.6;1" dur="1.5s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="135" cy="130" r="9" fill="#fbbf24"/>
+        <circle cx="132" cy="128" r="1.2" fill="#000"/>
+        <circle cx="138" cy="128" r="1.2" fill="#000"/>
+        <path d="M 132 133 q 3 2 6 0" stroke="#000" stroke-width="1" fill="none"/>
+        <path d="M 126 124 q 9 -8 18 0" stroke="#7c2d12" stroke-width="3" fill="none"/>
+        <rect x="128" y="138" width="14" height="14" fill="#3b82f6" rx="2"/>
+      </g>
+      <g style="transform-origin:65px 180px;animation:svgWheel 0.6s linear infinite">
+        <circle cx="65" cy="180" r="20" fill="url(#mbWheel)" stroke="#374151" stroke-width="2"/>
+        <circle cx="65" cy="180" r="13" fill="#475569"/>
+        <line x1="65" y1="167" x2="65" y2="193" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="52" y1="180" x2="78" y2="180" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="55" y1="170" x2="75" y2="190" stroke="#94a3b8" stroke-width="1"/>
+        <line x1="55" y1="190" x2="75" y2="170" stroke="#94a3b8" stroke-width="1"/>
+        <circle cx="65" cy="180" r="5" fill="#cbd5e1"/>
+      </g>
+      <g style="transform-origin:200px 180px;animation:svgWheel 0.6s linear infinite">
+        <circle cx="200" cy="180" r="20" fill="url(#mbWheel)" stroke="#374151" stroke-width="2"/>
+        <circle cx="200" cy="180" r="13" fill="#475569"/>
+        <line x1="200" y1="167" x2="200" y2="193" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="187" y1="180" x2="213" y2="180" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="190" y1="170" x2="210" y2="190" stroke="#94a3b8" stroke-width="1"/>
+        <line x1="190" y1="190" x2="210" y2="170" stroke="#94a3b8" stroke-width="1"/>
+        <circle cx="200" cy="180" r="5" fill="#cbd5e1"/>
+      </g>
+      ${left===0?`<text x="140" y="225" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">all boxes fell off!</text>`:''}
+    </svg>
+  `;
+}
+
+function svgMai(wrong){
+  const left = 6 - wrong;
+  const blossoms = [
+    {cx:75,cy:65,d:0},{cx:130,cy:45,d:.4},{cx:175,cy:70,d:.8},
+    {cx:60,cy:115,d:1.2},{cx:120,cy:100,d:1.6},{cx:185,cy:115,d:2.0},
+  ];
+  const flower = (cx,cy,delay)=>`
+    <g style="transform-origin:${cx}px ${cy}px;animation:svgPetalBreathe 2.5s ease-in-out infinite;animation-delay:${delay}s">
+      ${[0,1,2,3,4].map(i=>{
+        const a = (i*72-90)*Math.PI/180;
+        const px = cx + Math.cos(a)*7, py = cy + Math.sin(a)*7;
+        return `<ellipse cx="${px}" cy="${py}" rx="6" ry="7.5" fill="#fde047" stroke="#facc15" stroke-width="1" transform="rotate(${i*72} ${px} ${py})"/>`;
+      }).join('')}
+      <circle cx="${cx}" cy="${cy}" r="3.5" fill="#dc2626"/>
+      <circle cx="${cx-1}" cy="${cy-1}" r="1.2" fill="#fef3c7"/>
+      <circle cx="${cx-3}" cy="${cy-2}" r=".7" fill="#fff" opacity=".7"/>
+    </g>
+  `;
+  return `
+    <svg viewBox="0 0 240 230" class="scene-svg">
+      <defs>
+        <linearGradient id="maiPot" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#991b1b"/></linearGradient>
+        <linearGradient id="maiBranch" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#92400e"/><stop offset="100%" stop-color="#451a03"/></linearGradient>
+      </defs>
+      <ellipse cx="127" cy="218" rx="60" ry="6" fill="#000" opacity=".15"/>
+      <path d="M 88 180 L 96 215 L 158 215 L 166 180 Z" fill="url(#maiPot)" stroke="#7f1d1d" stroke-width="2"/>
+      <rect x="84" y="174" width="86" height="13" fill="#fbbf24" stroke="#92400e" stroke-width="1.5" rx="2"/>
+      <rect x="86" y="176" width="82" height="3" fill="#fde68a" rx="1"/>
+      <text x="127" y="184" text-anchor="middle" font-size="9" fill="#7f1d1d" font-weight="bold">TẾT</text>
+      <g style="transform-origin:127px 180px;animation:svgSway 5s ease-in-out infinite">
+        <path d="M 127 180 L 122 130 L 122 75" stroke="url(#maiBranch)" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M 122 130 L 75 105 L 55 110" stroke="url(#maiBranch)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M 122 105 L 175 75 L 190 110" stroke="url(#maiBranch)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M 122 75 L 85 55 L 70 60" stroke="url(#maiBranch)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 122 75 L 165 55 L 180 65" stroke="url(#maiBranch)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <path d="M 122 95 L 105 80" stroke="url(#maiBranch)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        <path d="M 122 115 L 145 105" stroke="url(#maiBranch)" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        ${blossoms.slice(0, left).map(b => flower(b.cx, b.cy, b.d)).join('')}
+        ${left>0?`
+          <circle cx="55" cy="110" r="3" fill="#16a34a"/>
+          <circle cx="190" cy="110" r="3" fill="#16a34a"/>
+          <circle cx="70" cy="60" r="2.5" fill="#16a34a"/>
+          <circle cx="180" cy="65" r="2.5" fill="#16a34a"/>
+        `:''}
+      </g>
+      ${left===0?`<text x="120" y="155" text-anchor="middle" font-size="13" fill="#94a3b8" font-style="italic">no blossoms for Tết...</text>`:''}
+      ${left>=4?`
+        <ellipse cx="30" cy="40" rx="4" ry="3" fill="#fde047" opacity=".8" transform="rotate(20 30 40)">
+          <animateTransform attributeName="transform" type="translate" values="0 0;15 180;0 0" dur="8s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".8;0;.8" dur="8s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="220" cy="50" rx="4" ry="3" fill="#facc15" opacity=".8" transform="rotate(-30 220 50)">
+          <animateTransform attributeName="transform" type="translate" values="0 0;-10 170;0 0" dur="9s" begin="3s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values=".8;0;.8" dur="9s" begin="3s" repeatCount="indefinite"/>
+        </ellipse>
+      `:''}
+    </svg>
+  `;
+}
+
+const SCENES = [
+  { id:'lotus', emoji:'🪷', title:'Save the Lotus', desc:'Each wrong guess, a petal falls.', svg:svgLotus, hitEmoji:'🌸', missEmoji:'🍃', win:'🌸 You saved the lotus!', lose:'The lotus wilted.' },
+  { id:'pho', emoji:'🍜', title:'Save the Phở', desc:'Save the toppings before it gets cold!', svg:svgPho, hitEmoji:'♨️', missEmoji:'❄️', win:'🍜 Hot phở rescued!', lose:'The phở got cold &amp; empty…' },
+  { id:'banhmi', emoji:'🥖', title:'Save the Bánh Mì', desc:'Catch the fillings before they fall!', svg:svgBanhMi, hitEmoji:'🥬', missEmoji:'💨', win:'🥖 Bánh mì preserved!', lose:'All the filling fell out!' },
+  { id:'coffee', emoji:'☕', title:'Save the Cà Phê Sữa Đá', desc:'Hurry — the ice is melting!', svg:svgCoffee, hitEmoji:'🧊', missEmoji:'💧', win:'☕ Iced coffee saved on time!', lose:'All ice melted!' },
+  { id:'banhchung', emoji:'🎋', title:'Save the Bánh Chưng', desc:'Guess before the strings untie!', svg:svgBanhChung, hitEmoji:'🎋', missEmoji:'🪢', win:'🎋 Tết is saved!', lose:'Bánh chưng came unwrapped!' },
+  { id:'motorbike', emoji:'🛵', title:'Save the Delivery', desc:'Keep the boxes on the xe máy!', svg:svgMotorbike, hitEmoji:'📦', missEmoji:'💥', win:'🛵 Delivery successful!', lose:'All boxes fell off!' },
+  { id:'mai', emoji:'🌼', title:'Save the Cây Mai', desc:'Make Cây Mai bloom for Tết!', svg:svgMai, hitEmoji:'🌼', missEmoji:'🍂', win:'🌼 Mai bloomed in time for Tết!', lose:'The mai tree has no blossoms…' },
+];
+
+function pickScene(){
+  const others = SCENES.filter(s => s.id !== state.lotusLastSceneId);
+  const pool = others.length ? others : SCENES;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function pickWord(){
+  let unused = state.words.filter(w => !state.lotusUsedWords.has(w.id));
+  if(!unused.length){
+    // all words played — reset cycle, but still avoid the very last one if possible
+    state.lotusUsedWords = new Set();
+    const last = state.lotusWord ? state.lotusWord.id : null;
+    unused = state.words.filter(w => w.id !== last);
+    if(!unused.length) unused = state.words;
+  }
+  return unused[Math.floor(Math.random()*unused.length)];
+}
+
+function initLotus(){
+  if(!state.words.length){ state.lotusWord=null; return; }
+  state.lotusWord = pickWord();
+  state.lotusUsedWords.add(state.lotusWord.id);
+  state.lotusScene = pickScene();
+  state.lotusLastSceneId = state.lotusScene.id;
+  state.lotusGuessed = new Set();
+  state.lotusWrong = 0;
+  state.lotusEnded = false;
+}
+
+function spawnBurst(emoji, count, isHit){
+  const wrap = document.querySelector('.scene-wrap');
+  if(!wrap) return;
+  const rect = wrap.getBoundingClientRect();
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'burst';
+    el.textContent = emoji;
+    const angle = (Math.random()-0.5) * (isHit ? Math.PI : Math.PI*0.5);
+    const dist = 60 + Math.random()*60;
+    const bx = Math.sin(angle) * dist;
+    const by = isHit ? -(40 + Math.random()*60) : (40 + Math.random()*60);
+    el.style.setProperty('--bx', bx+'px');
+    el.style.setProperty('--by', by+'px');
+    el.style.left = (rect.width/2 + (Math.random()-0.5)*40) + 'px';
+    el.style.top = (rect.height/2 + (Math.random()-0.5)*40) + 'px';
+    el.style.animationDelay = (Math.random()*0.15) + 's';
+    wrap.appendChild(el);
+    setTimeout(()=>el.remove(), 1300);
+  }
+}
+
+function renderLotus(app){
+  if(!state.lotusWord || !state.lotusScene){ app.innerHTML = `<div class="empty">Add words first.</div>`; return; }
+  const w = state.lotusWord;
+  const sc = state.lotusScene;
+  const display = w.word.split('').map(ch => /[a-z]/i.test(ch) ? (state.lotusGuessed.has(ch.toLowerCase())?ch:'_') : ch);
+  const won = !display.includes('_');
+  const lost = state.lotusWrong >= state.lotusMax;
+  const done = won||lost;
+  const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+  const livesLeft = Math.max(0, state.lotusMax - state.lotusWrong);
+
+  let livesPips = '';
+  for(let i=0;i<state.lotusMax;i++){
+    livesPips += `<span class="lives-pip ${i>=livesLeft?'lost':''}"></span>`;
+  }
+
+  app.innerHTML = `
+    <div class="row-between" style="margin-bottom:.6rem">
+      <div style="font-size:.9rem;color:#64748b">${state.lotusUsedWords.size} / ${state.words.length} words this round</div>
+      <button class="btn btn-secondary" onclick="lotusNew()">🔄 Skip · new word</button>
+    </div>
+    <div class="lotus-stage">
+      <div class="lotus-left">
+        <div class="scene-wrap">
+          ${sc.svg(state.lotusWrong)}
+        </div>
+      </div>
+      <div class="lotus-right">
+        <div class="lotus-header">
+          <div class="lotus-scene-title">${sc.emoji} ${sc.title}</div>
+          <div class="lotus-lives">
+            <span style="color:#64748b">Lives:</span>
+            <span class="lives-pips">${livesPips}</span>
+            <span style="color:#475569">${livesLeft}/${state.lotusMax}</span>
+          </div>
+        </div>
+
+        <div class="lotus-word">
+          ${display.map(ch=>`<span class="lotus-letter ${ch!=='_'?'revealed':''}">${ch===' '?'&nbsp;':escapeHtml(ch)}</span>`).join('')}
+        </div>
+
+        <div class="lotus-meaning">
+          ${escapeHtml(w.meaning||'(no meaning)')}
+        </div>
+        <div class="lotus-meta">
+          ${w.translation?`<span class="vn">🇻🇳 ${escapeHtml(w.translation)}</span>`:''}
+          ${w.ipa?`<span class="ipa">${escapeHtml(w.ipa)}</span>`:''}
+          <span class="len">${w.word.length} letters</span>
+        </div>
+
+        ${done ? `
+          <div class="lotus-end ${won?'win':'lose'}">
+            ${won
+              ? `<div style="font-size:clamp(1.3rem,2.4vw,1.7rem);color:#10b981;font-weight:800">${sc.win}</div>`
+              : `<div style="font-size:clamp(1.2rem,2.2vw,1.5rem);color:#ef4444;font-weight:700">${sc.lose}<br><span style="font-size:.85em;color:#475569;font-weight:600">The word was <b>${escapeHtml(w.word)}</b></span></div>`}
+            <button class="btn btn-primary btn-lg" style="margin-top:.7rem" onclick="lotusNew()">▶ Next word + new scene</button>
+          </div>
+        ` : `
+          <div class="lotus-keys">
+            ${letters.map(L=>{
+              const guessed = state.lotusGuessed.has(L);
+              const inWord = w.word.toLowerCase().includes(L);
+              const cls = guessed ? (inWord?'hit':'miss') : '';
+              return `<button class="lotus-key ${cls}" onclick="lotusGuess('${L}')" ${guessed?'disabled':''}>${L.toUpperCase()}</button>`;
+            }).join('')}
+          </div>
+        `}
+      </div>
+    </div>
+  `;
+
+  if(done){
+    const svg = document.querySelector('.scene-svg');
+    if(svg){ svg.classList.add(won?'win':'lose'); }
+    if(won){
+      setTimeout(()=>{
+        const stage = document.querySelector('.lotus-stage');
+        if(stage) spawnSparkles(stage);
+      }, 100);
+    }
+  }
+}
+
+function lotusNew(){ sound.shuffle(); initLotus(); render(); }
+
+function lotusGuess(letter){
+  const w = state.lotusWord;
+  const sc = state.lotusScene;
+  if(!w || state.lotusGuessed.has(letter) || state.lotusEnded) return;
+  state.lotusGuessed.add(letter);
+  const inWord = w.word.toLowerCase().includes(letter);
+  if(inWord){ sound.petalSave(); }
+  else { state.lotusWrong++; sound.petalFall(); }
+  const display = w.word.split('').map(ch => /[a-z]/i.test(ch) ? (state.lotusGuessed.has(ch.toLowerCase())?ch:'_') : ch);
+  const won = !display.includes('_');
+  const lost = state.lotusWrong >= state.lotusMax;
+  if((won||lost) && !state.lotusEnded){
+    state.lotusEnded = true;
+    setTimeout(()=>{ won ? sound.fanfare() : sound.sad(); }, 400);
+  }
+  render();
+
+  requestAnimationFrame(()=>{
+    const svg = document.querySelector('.scene-svg');
+    if(svg && !state.lotusEnded){
+      const cls = inWord ? 'pulse' : 'shake';
+      svg.classList.add(cls);
+      setTimeout(()=>svg.classList.remove(cls), 600);
+    }
+    spawnBurst(inWord ? sc.hitEmoji : sc.missEmoji, inWord ? 5 : 3, inWord);
+  });
+}
+
+document.addEventListener('keydown', e=>{
+  if(state.view!=='lotus') return;
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
+  const k = e.key.toLowerCase();
+  if(/^[a-z]$/.test(k)) lotusGuess(k);
+});
+
+render();
+</script>
+</body>
+</html>
