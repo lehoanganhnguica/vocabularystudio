@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/28082468/README.md)
 # Vocab Studio
 
 Vocab Studio is a single-file classroom vocabulary teaching tool. It runs fully in the browser and stores vocabulary locally with `localStorage`.
