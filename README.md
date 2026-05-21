@@ -1,3 +1,4 @@
+[README.md](https://github.com/user-attachments/files/28082468/README.md)
 # Vocab Studio
 
 Vocab Studio is a single-file classroom vocabulary teaching tool. It runs fully in the browser and stores vocabulary locally with `localStorage`.
@@ -10,6 +11,8 @@ Vocab Studio is a single-file classroom vocabulary teaching tool. It runs fully 
 - Matching game
 - Word scramble
 - "Save the Day" letter-guessing game
+- English/Vietnamese interface switcher
+- In-app HTML download for local offline use
 - Offline-friendly single-page HTML app
 
 ## Deploy on GitHub Pages
@@ -49,4 +52,3 @@ http://localhost:8000
 - No build step is required.
 - No external JavaScript or CSS dependencies are required.
 - User vocabulary is stored in each browser's local storage.
-
