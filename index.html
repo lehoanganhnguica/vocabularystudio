@@ -16,6 +16,7 @@
   .language-picker{display:inline-flex;align-items:center}
   .language-icon{display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.25rem;border:1px solid rgba(255,255,255,.35);border-right:none;border-radius:.4rem 0 0 .4rem;background:rgba(255,255,255,.15);font-size:1rem;line-height:1}
   .language-control .top-control{height:2.25rem;padding:0 .8rem;border:1px solid rgba(255,255,255,.35);border-radius:.4rem;font-size:.9rem;font-weight:600}
+  .header-tools > .top-control{height:2.25rem;padding:0 .8rem;border:1px solid rgba(255,255,255,.35);font-size:.9rem;font-weight:600}
   .header-right{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
   nav{display:flex;flex-wrap:wrap;gap:.25rem;background:rgba(255,255,255,.15);padding:.25rem;border-radius:.5rem}
   nav button{background:transparent;border:none;color:white;padding:.4rem .75rem;border-radius:.4rem;cursor:pointer;font-size:.9rem;font-weight:500;transition:background .15s}
@@ -291,6 +292,7 @@
           </div>
           <button id="download-html" class="top-control" title="Download for offline use">⬇️ Download for offline use</button>
         </div>
+        <button id="instructions-help" class="top-control" title="How to use">❔ How to use</button>
       </div>
     </div>
     <div class="header-right">
@@ -473,6 +475,7 @@ const state = {
   lotusWord: null, lotusScene: null, lotusGuessed: new Set(), lotusWrong: 0, lotusMax: 6, lotusEnded: false,
   lotusUsedWords: new Set(), lotusLastSceneId: null, lotusShowVietnamese: true,
   importTab: 'guide',
+  modalType: null,
 };
 
 const I18N = {
@@ -481,6 +484,18 @@ const I18N = {
     languageTitle: 'Change language',
     downloadTitle: 'Download for offline use',
     downloadButton: '⬇️ Download for offline use',
+    instructionsTitle: 'How to use Vocab Studio',
+    instructionsButton: '❔ How to use',
+    instructionsClose: 'Close',
+    instructionsIntro: 'Use Vocab Studio to import a vocabulary list, teach the words, then practise them through classroom-friendly games.',
+    instructionsLibraryTitle: '1. Build your library',
+    instructionsLibraryText: 'Go to Library, choose Load sample or Import / Paste, then add a Markdown vocabulary table. Your words are saved in this browser.',
+    instructionsFlashcardsTitle: '2. Teach with Flashcards',
+    instructionsFlashcardsText: 'Use Flashcards to show the target word, IPA, example sentence, meaning, and Vietnamese cue. Press Space to reveal and arrow keys to move.',
+    instructionsPracticeTitle: '3. Practise with games',
+    instructionsPracticeText: 'Use Quiz, Match, Scramble, and Save the Day for repeated practice. Scramble and Save the Day include a button to show or hide Vietnamese hints.',
+    instructionsOfflineTitle: '4. Use it offline',
+    instructionsOfflineText: 'Choose Download for offline use to save the current app as an HTML file. Open that file in any browser without internet.',
     soundTitle: 'Toggle sound',
     footerOffline: 'Works fully offline · Save this file to your computer to use without internet',
     contact: 'Contact',
@@ -571,6 +586,18 @@ const I18N = {
     languageTitle: 'Đổi ngôn ngữ',
     downloadTitle: 'Tải về để dùng offline',
     downloadButton: '⬇️ Tải để dùng offline',
+    instructionsTitle: 'Cách dùng Vocab Studio',
+    instructionsButton: '❔ Cách dùng',
+    instructionsClose: 'Đóng',
+    instructionsIntro: 'Dùng Vocab Studio để nhập danh sách từ vựng, dạy từ mới, rồi luyện tập bằng các trò chơi thân thiện với lớp học.',
+    instructionsLibraryTitle: '1. Tạo thư viện từ',
+    instructionsLibraryText: 'Vào Thư viện, chọn Tải bộ mẫu hoặc Nhập / Dán, rồi thêm bảng từ vựng Markdown. Từ vựng sẽ được lưu trong trình duyệt này.',
+    instructionsFlashcardsTitle: '2. Dạy bằng thẻ từ',
+    instructionsFlashcardsText: 'Dùng Thẻ từ để hiển thị từ đích, IPA, câu ví dụ, nghĩa và gợi ý tiếng Việt. Bấm Space để hiện nghĩa và dùng phím mũi tên để chuyển thẻ.',
+    instructionsPracticeTitle: '3. Luyện tập bằng trò chơi',
+    instructionsPracticeText: 'Dùng Trắc nghiệm, Ghép cặp, Xếp chữ và Giải cứu để luyện tập nhiều lần. Xếp chữ và Giải cứu có nút hiện hoặc ẩn gợi ý tiếng Việt.',
+    instructionsOfflineTitle: '4. Dùng offline',
+    instructionsOfflineText: 'Chọn Tải để dùng offline để lưu phiên bản hiện tại của ứng dụng thành file HTML. Mở file đó bằng bất kỳ trình duyệt nào khi không có internet.',
     soundTitle: 'Bật/tắt âm thanh',
     footerOffline: 'Hoạt động hoàn toàn offline · Lưu file này vào máy tính để dùng không cần internet',
     contact: 'Liên hệ',
@@ -713,6 +740,11 @@ function renderChrome(){
     downloadBtn.textContent = t('downloadButton');
     downloadBtn.title = t('downloadTitle');
   }
+  const instructionsBtn = $('instructions-help');
+  if(instructionsBtn){
+    instructionsBtn.textContent = t('instructionsButton');
+    instructionsBtn.title = t('instructionsTitle');
+  }
   if(soundBtn) soundBtn.title = t('soundTitle');
   document.querySelectorAll('#nav button').forEach(b=>{
     b.textContent = t(navLabels[b.dataset.view] || 'navLibrary');
@@ -737,7 +769,8 @@ function setLanguage(lang){
   try{ localStorage.setItem(LANG_STORAGE_KEY, lang); }catch(e){}
   sound.softClick();
   renderChrome();
-  if($('modal-root').innerHTML) renderImportModal();
+  if(state.modalType === 'import') renderImportModal();
+  else if(state.modalType === 'instructions') renderInstructionsModal();
   render();
 }
 
@@ -884,6 +917,8 @@ const languageSelect = $('language-select');
 if(languageSelect) languageSelect.addEventListener('change', e=>setLanguage(e.target.value));
 const downloadHtmlBtn = $('download-html');
 if(downloadHtmlBtn) downloadHtmlBtn.addEventListener('click', downloadCurrentHtml);
+const instructionsHelpBtn = $('instructions-help');
+if(instructionsHelpBtn) instructionsHelpBtn.addEventListener('click', openInstructions);
 
 function render(){
   renderChrome();
@@ -977,6 +1012,7 @@ Important formatting rules:
 - Do NOT add extra columns.`;
 
 function openImport(){
+  state.modalType = 'import';
   state.importTab = 'guide';
   renderImportModal();
 }
@@ -1073,7 +1109,40 @@ function copyPrompt(){
     document.body.removeChild(ta);
   }
 }
-function closeModal(){ $('modal-root').innerHTML=''; }
+function openInstructions(){
+  state.modalType = 'instructions';
+  sound.softClick();
+  renderInstructionsModal();
+}
+function renderInstructionsModal(){
+  const sections = [
+    ['instructionsLibraryTitle', 'instructionsLibraryText'],
+    ['instructionsFlashcardsTitle', 'instructionsFlashcardsText'],
+    ['instructionsPracticeTitle', 'instructionsPracticeText'],
+    ['instructionsOfflineTitle', 'instructionsOfflineText'],
+  ];
+  $('modal-root').innerHTML = `
+    <div class="modal-bg" onclick="if(event.target===this)closeModal()">
+      <div class="modal">
+        <div class="row-between" style="margin-bottom:1rem">
+          <h2 style="font-size:1.25rem">${escapeHtml(t('instructionsTitle'))}</h2>
+          <button class="btn btn-ghost" onclick="closeModal()" style="padding:.3rem .6rem;font-size:1.1rem">✕</button>
+        </div>
+        <p style="color:#475569;margin-bottom:1rem;line-height:1.6">${escapeHtml(t('instructionsIntro'))}</p>
+        ${sections.map(([titleKey, textKey])=>`
+          <div class="step">
+            <b>${escapeHtml(t(titleKey))}</b><br>
+            ${escapeHtml(t(textKey))}
+          </div>
+        `).join('')}
+        <div class="row" style="justify-content:flex-end;margin-top:1rem">
+          <button class="btn btn-primary" onclick="closeModal()">${escapeHtml(t('instructionsClose'))}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+function closeModal(){ state.modalType = null; $('modal-root').innerHTML=''; }
 function getSampleMd(){
   return `| Word | IPA | Simple meaning | Vietnamese cue | Example sentence |
 | --- | --- | --- | --- | --- |
@@ -1169,7 +1238,7 @@ function renderQuiz(app){
   } else if(q.mode==='ipa' && q.correct.ipa){
     prompt = `${escapeHtml(t('pronounced'))}<br><span class="quiz-ipa-mode" style="color:#0891b2;font-size:1.4em;display:inline-block;margin-top:.5rem">${escapeHtml(q.correct.ipa)}</span>`;
   } else {
-    prompt = `${escapeHtml(t('means'))}<br><b style="display:inline-block;margin-top:.5rem">${escapeHtml(q.correct.meaning||t('noMeaning'))}</b>${q.correct.translation?`<br><span style="font-size:.75em;color:#7c3aed;font-style:italic">(${escapeHtml(q.correct.translation)})</span>`:''}`;
+    prompt = `${escapeHtml(t('means'))}<br><b style="display:inline-block;margin-top:.5rem">${escapeHtml(q.correct.meaning||t('noMeaning'))}</b>`;
   }
   app.innerHTML = `
     <div class="row-between" style="margin-bottom:1rem">
@@ -1863,7 +1932,6 @@ function renderLotus(app){
         </div>
         <div class="lotus-meta">
           ${state.lotusShowVietnamese && w.translation?`<span class="vn">🇻🇳 ${escapeHtml(w.translation)}</span>`:''}
-          ${w.ipa?`<span class="ipa">${escapeHtml(w.ipa)}</span>`:''}
           <span class="len">${escapeHtml(t('letters', w.word.length))}</span>
         </div>
 
